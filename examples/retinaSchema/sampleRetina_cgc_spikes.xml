@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<retina-description-file>
+	
+	<retina temporal-step__sec ="0.005" input-luminosity-range="255" pixels-per-degree="10.0">
+
+		<log-polar-scheme fovea-radius="50" scaling-factor-outside-fovea="0.02"/>
+		
+		<outer-plexiform-layer>
+			<linear-version 
+			sigma-center__deg="0.10" 
+			additional-sigma-surround__deg="0.30" 
+			tau-center__sec="0.01"
+			additional-tau-surround__sec="0.01" 
+			opl-amplification="5"
+			relative-weight-surround-center="1"
+			leaky-heat-equation="1" />
+		</outer-plexiform-layer>
+		
+		
+		<contrast-gain-control 
+			input-amplification-from-opl-signal="250"
+			bipolar-to-amacrine-threshold="0.5"
+			sigma-amacrine-cells__deg="0.5"
+			additional-tau-amacrine-cells__sec="0.03"
+			amacrine-feedback-amplification="500"
+			inert-leak-in-bipolar-cells="10"/>
+		
+		<parvocellular-ganglion-layer 
+			additional-tau-transient__sec="0.03"
+			relative-transient-weight="0.75"
+			linear-threshold-from-bipolar-signal="0"
+			value-at-linear-threshold="100"
+			input-amplification-from-bipolar-signal="300">
+			<spiking-channel>
+				<circular-spiking-channel
+				diameter="100" fovea-density="0.2" g-leak="50"
+				noise-V="0.0" noise-refr__sec="0"
+				tau-refr__sec="0.003" random-init="1"/>
+			</spiking-channel>
+		</parvocellular-ganglion-layer>
+		
+	</retina>
+</retina-description-file>
+
+<!--  THATS ALL FOLKS! -->
+

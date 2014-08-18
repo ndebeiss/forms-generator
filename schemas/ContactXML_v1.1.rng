@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://www.xmlns.org/2002/ContactXML"
+         xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <start>
+    <choice>
+      <ref name="ContactXML"/>
+    </choice>
+  </start>
+
+  <define name="ContactXML">
+    <element name="ContactXML">
+      <ref name="attlist.ContactXML"/>
+      <oneOrMore>
+        <ref name="ContactXMLItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="lang.attrib">
+    <optional>
+      <attribute name="xml:lang">
+        <data type="language"/>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="attlist.ContactXML" combine="interleave">
+    <attribute name="version">
+      <value>1.1</value>
+    </attribute>
+    <attribute name="creator">
+      <data type="anyURI"/>
+    </attribute>
+  </define>
+
+  <define name="ContactXMLItem">
+    <element name="ContactXMLItem">
+      <ref name="attlist.ContactXMLItem"/>
+      <ref name="PersonName"/>
+      <optional>
+        <ref name="PersonID"/>
+      </optional>
+      <optional>
+        <ref name="Address"/>
+      </optional>
+      <optional>
+        <ref name="Occupation"/>
+      </optional>
+      <optional>
+        <ref name="Phone"/>
+      </optional>
+      <optional>
+        <ref name="Email"/>
+      </optional>
+      <optional>
+        <ref name="InstantMessaging"/>
+      </optional>
+      <optional>
+        <ref name="Web"/>
+      </optional>
+      <optional>
+        <ref name="Image"/>
+      </optional>
+      <optional>
+        <ref name="Extension"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="attlist.ContactXMLItem" combine="interleave">
+    <optional>
+      <attribute name="lastModifiedDate"/>
+    </optional>
+  </define>
+
+  <define name="PersonName">
+    <element name="PersonName">
+      <ref name="attlist.PersonName"/>
+      <oneOrMore>
+        <ref name="PersonNameItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.PersonName" combine="interleave">
+    <empty/>
+  </define>
+
+  <define name="PersonNameItem">
+    <element name="PersonNameItem">
+      <ref name="attlist.PersonNameItem"/>
+      <ref name="FullName"/>
+      <optional>
+        <ref name="FirstName"/>
+      </optional>
+      <optional>
+        <ref name="MiddleName"/>
+      </optional>
+      <optional>
+        <ref name="LastName"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="attlist.PersonNameItem" combine="interleave">
+    <ref name="lang.attrib"/>
+  </define>
+
+  <define name="FullName">
+    <element name="FullName">
+      <ref name="attlist.FullName"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.FullName" combine="interleave">
+    <optional>
+      <attribute name="pronunciation"/>
+    </optional>
+  </define>
+
+  <define name="FirstName">
+    <element name="FirstName">
+      <ref name="attlist.FirstName"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.FirstName" combine="interleave">
+    <optional>
+      <attribute name="pronunciation"/>
+    </optional>
+  </define>
+
+  <define name="MiddleName">
+    <element name="MiddleName">
+      <ref name="attlist.MiddleName"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.MiddleName" combine="interleave">
+    <optional>
+      <attribute name="pronunciation"/>
+    </optional>
+  </define>
+
+  <define name="LastName">
+    <element name="LastName">
+      <ref name="attlist.LastName"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.LastName" combine="interleave">
+    <optional>
+      <attribute name="pronunciation"/>
+    </optional>
+  </define>
+
+  <define name="PersonID">
+    <element name="PersonID">
+      <ref name="attlist.PersonID"/>
+      <oneOrMore>
+        <ref name="PersonIDItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.PersonID" combine="interleave">
+    <empty/>
+  </define>
+
+  <define name="PersonIDItem">
+    <element name="PersonIDItem">
+      <ref name="attlist.PersonIDItem"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.PersonIDItem" combine="interleave">
+    <attribute name="codeDomain">
+      <choice>
+        <value>Passport</value>
+        <value>DrivingLicense</value>
+        <value>InsuranceCertificate</value>
+        <value>UserDefined</value>
+      </choice>
+    </attribute>
+  </define>
+
+  <define name="Address">
+    <element name="Address">
+      <ref name="attlist.Address"/>
+      <oneOrMore>
+        <ref name="AddressItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.Address" combine="interleave">
+    <empty/>
+  </define>
+
+  <define name="AddressItem">
+    <element name="AddressItem">
+      <ref name="attlist.AddressItem"/>
+      <zeroOrMore>
+        <ref name="AddressCode"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="FullAddress"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="AddressLine"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.AddressItem" combine="interleave">
+    <attribute name="locationType">
+      <choice>
+        <value>Home</value>
+        <value>Office</value>
+        <value>Origin</value>
+        <value>Others</value>
+        <value>Unknown</value>
+      </choice>
+    </attribute>
+    <optional>
+      <attribute name="preference">
+        <choice>
+          <value>True</value>
+          <value>False</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="AddressCode">
+    <element name="AddressCode">
+      <ref name="attlist.AddressCode"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.AddressCode" combine="interleave">
+    <attribute name="codeDomain">
+      <choice>
+        <value>Country</value>
+        <value>ZIP7</value>
+        <value>Prefecture</value>
+        <value>JIS5</value>
+        <value>KAJO</value>
+        <value>JGDC8</value>
+        <value>JGDC11</value>
+        <value>Latitude</value>
+        <value>Longitude</value>
+        <value>UserDefined</value>
+      </choice>
+    </attribute>
+  </define>
+
+  <define name="FullAddress">
+    <element name="FullAddress">
+      <ref name="attlist.FullAddress"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.FullAddress" combine="interleave">
+    <optional>
+      <attribute name="pronunciation"/>
+    </optional>
+    <optional>
+      <ref name="lang.attrib"/>
+    </optional>
+  </define>
+
+  <define name="AddressLine">
+    <element name="AddressLine">
+      <ref name="attlist.AddressLine"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.AddressLine" combine="interleave">
+    <attribute name="addressLineType">
+      <choice>
+        <value>Country</value>
+        <value>Prefecture</value>
+        <value>City</value>
+        <value>Town</value>
+        <value>Number</value>
+        <value>Building</value>
+        <value>POB</value>
+        <value>Others</value>
+        <value>Unknown</value>
+      </choice>
+    </attribute>
+    <optional>
+      <attribute name="pronunciation"/>
+    </optional>
+    <optional>
+      <ref name="lang.attrib"/>
+    </optional>
+  </define>
+
+  <define name="Occupation">
+    <element name="Occupation">
+      <ref name="attlist.Occupation"/>
+      <oneOrMore>
+        <ref name="OccupationItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.Occupation" combine="interleave">
+    <empty/>
+  </define>
+
+  <define name="OccupationItem">
+    <element name="OccupationItem">
+      <ref name="attlist.OccupationItem"/>
+      <optional>
+        <ref name="OrganizationName"/>
+      </optional>
+      <optional>
+        <ref name="Department"/>
+      </optional>
+      <optional>
+        <ref name="JobTitle"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="attlist.OccupationItem" combine="interleave">
+    <ref name="lang.attrib"/>
+    <optional>
+      <attribute name="preference">
+        <choice>
+          <value>True</value>
+          <value>False</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="OrganizationName">
+    <element name="OrganizationName">
+      <ref name="attlist.OrganizationName"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.OrganizationName" combine="interleave">
+    <optional>
+      <attribute name="pronunciation"/>
+    </optional>
+  </define>
+
+  <define name="Department">
+    <element name="Department">
+      <ref name="attlist.Department"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.Department" combine="interleave">
+    <optional>
+      <attribute name="pronunciation"/>
+    </optional>
+  </define>
+
+  <define name="JobTitle">
+    <element name="JobTitle">
+      <ref name="attlist.JobTitle"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.JobTitle" combine="interleave">
+    <optional>
+      <attribute name="pronunciation"/>
+    </optional>
+  </define>
+
+  <define name="Phone">
+    <element name="Phone">
+      <ref name="attlist.Phone"/>
+      <oneOrMore>
+        <ref name="PhoneItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.Phone" combine="interleave">
+    <empty/>
+  </define>
+
+  <define name="PhoneItem">
+    <element name="PhoneItem">
+      <ref name="attlist.PhoneItem"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.PhoneItem" combine="interleave">
+    <attribute name="phoneDevice">
+      <choice>
+        <value>Phone</value>
+        <value>Fax</value>
+        <value>Cellular</value>
+        <value>Pager</value>
+        <value>Others</value>
+        <value>Unknown</value>
+      </choice>
+    </attribute>
+    <attribute name="usage">
+      <choice>
+        <value>Official</value>
+        <value>Private</value>
+        <value>Others</value>
+        <value>Unknown</value>
+      </choice>
+    </attribute>
+    <optional>
+      <attribute name="preference">
+        <choice>
+          <value>True</value>
+          <value>False</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="Email">
+    <element name="Email">
+      <ref name="attlist.Email"/>
+      <oneOrMore>
+        <ref name="EmailItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.Email" combine="interleave">
+    <empty/>
+  </define>
+
+  <define name="EmailItem">
+    <element name="EmailItem">
+      <ref name="attlist.EmailItem"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.EmailItem" combine="interleave">
+    <attribute name="emailDevice">
+      <choice>
+        <value>PC</value>
+        <value>PDA</value>
+        <value>Cellular</value>
+        <value>Others</value>
+        <value>Unknown</value>
+      </choice>
+    </attribute>
+    <attribute name="usage">
+      <choice>
+        <value>Official</value>
+        <value>Private</value>
+        <value>Others</value>
+        <value>Unknown</value>
+      </choice>
+    </attribute>
+    <optional>
+      <attribute name="preference">
+        <choice>
+          <value>True</value>
+          <value>False</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="InstantMessaging">
+    <element name="InstantMessaging">
+      <ref name="attlist.InstantMessaging"/>
+      <oneOrMore>
+        <ref name="InstantMessagingItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.InstantMessaging" combine="interleave">
+    <empty/>
+  </define>
+
+  <define name="InstantMessagingItem">
+    <element name="InstantMessagingItem">
+      <ref name="attlist.InstantMessagingItem"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.InstantMessagingItem" combine="interleave">
+    <attribute name="IMDomain">
+      <choice>
+        <value>AOL</value>
+        <value>ICQ</value>
+        <value>MSN</value>
+        <value>Yahoo</value>
+        <value>Others</value>
+        <value>Unknown</value>
+      </choice>
+    </attribute>
+    <attribute name="usage">
+      <choice>
+        <value>Official</value>
+        <value>Private</value>
+        <value>Others</value>
+        <value>Unknown</value>
+      </choice>
+    </attribute>
+    <optional>
+      <attribute name="preference">
+        <choice>
+          <value>True</value>
+          <value>False</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="Web">
+    <element name="Web">
+      <ref name="attlist.Web"/>
+      <oneOrMore>
+        <ref name="WebItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.Web" combine="interleave">
+    <empty/>
+  </define>
+
+  <define name="WebItem">
+    <element name="WebItem">
+      <ref name="attlist.WebItem"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.WebItem" combine="interleave">
+    <attribute name="usage">
+      <choice>
+        <value>Official</value>
+        <value>Private</value>
+        <value>Others</value>
+        <value>Unknown</value>
+      </choice>
+    </attribute>
+    <optional>
+      <attribute name="preference">
+        <choice>
+          <value>True</value>
+          <value>False</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="Image">
+    <element name="Image">
+      <ref name="attlist.Image"/>
+      <oneOrMore>
+        <ref name="ImageItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.Image" combine="interleave">
+    <empty/>
+  </define>
+
+  <define name="ImageItem">
+    <element name="ImageItem">
+      <ref name="attlist.ImageItem"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.ImageItem" combine="interleave">
+    <optional>
+      <attribute name="contentType"/>
+    </optional>
+    <attribute name="imageSemantics">
+      <choice>
+        <value>Portrait</value>
+        <value>Logo</value>
+        <value>Others</value>
+        <value>Unknown</value>
+      </choice>
+    </attribute>
+    <optional>
+      <attribute name="url">
+        <data type="anyURI"/>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="Extension">
+    <element name="Extension">
+      <ref name="attlist.Extension"/>
+      <oneOrMore>
+        <ref name="ExtensionItem"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.Extension" combine="interleave">
+    <empty/>
+  </define>
+
+  <define name="ExtensionItem">
+    <element name="ExtensionItem">
+      <ref name="attlist.ExtensionItem"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.ExtensionItem" combine="interleave">
+    <attribute name="name"/>
+    <attribute name="extensionType">
+      <choice>
+        <value>Common</value>
+        <value>Extended</value>
+      </choice>
+    </attribute>
+    <optional>
+      <ref name="lang.attrib"/>
+    </optional>
+  </define>
+</grammar>

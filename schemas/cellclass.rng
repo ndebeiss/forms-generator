@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rng:grammar ns="http://FacetsML/cellclass"
+    xmlns:rng="http://relaxng.org/ns/structure/1.0"
+    xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+    
+    <rng:start combine="choice">
+        <rng:ref name="cellclass"/>
+    </rng:start>
+
+    <rng:define name="cellclass">
+            <rng:choice>
+                <rng:ref name="IF_curr_alpha"/>
+                <rng:ref name="IF_curr_exp"/>
+                <rng:ref name="IF_cond_alpha"/>
+                <rng:ref name="IF_cond_exp"/>
+                <rng:ref name="SpikeSourcePoisson"/>
+                <rng:ref name="SpikeSourceArray"/>
+                <rng:ref name="NonStandardCellType"/>
+            </rng:choice>
+    </rng:define>
+    
+    <rng:define name="IF_curr_alpha">
+        <a:documentation>
+            'v_rest'     : -65.0,   # Resting membrane potential in mV.<br/>
+            'cm'         :   1.0,   # Capacity of the membrane in nF <br/>
+            'tau_m'      :  20.0,   # Membrane time constant in ms. <br/>
+            'tau_refrac' :   0.0,   # Duration of refractory period in ms. <br/>
+            'tau_syn'    :   5.0,   # Rise time of the synaptic alpha function in ms.<br/>
+            'i_offset'   :   0.0,   # Offset current in nA <br/>
+            'v_reset'    : -65.0,   # Reset potential after a spike in mV. <br/>
+            'v_thresh'   : -50.0,   # Spike threshold in mV. <br/>
+            'v_init'     : -65.0,   # Membrane potential in mV at t = 0 <br/>
+        </a:documentation>
+        <rng:element name="IF_curr_alpha">
+            <rng:optional>
+                <rng:attribute name="v_rest">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="cm">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_m">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_refrac">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_syn">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="i_offset">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_reset">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_thresh">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_init">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="IF_curr_exp">
+        <rng:element name="IF_curr_exp">
+            <rng:optional>
+                <rng:attribute name="v_rest">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="cm">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_m">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_refrac">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_syn_E">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_syn_I">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="i_offset">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_reset">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_thresh">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_init">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="IF_cond_alpha">
+        <rng:element name="IF_cond_alpha">
+            <rng:optional>
+                <rng:attribute name="v_rest">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="cm">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_m">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_refrac">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_syn_E">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_syn_I">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="e_rev_E">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="e_rev_I">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_thresh">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_reset">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="i_offset">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_init">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="IF_cond_exp">
+        <rng:element name="IF_cond_exp">
+            <rng:optional>
+                <rng:attribute name="v_rest">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="cm">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_m">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_refrac">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_syn_E">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="tau_syn_I">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="e_rev_E">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="e_rev_I">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_thresh">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_reset">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="i_offset">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="v_init">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="SpikeSourcePoisson">
+        <rng:element name="SpikeSourcePoisson">
+            <rng:optional>
+                <rng:attribute name="rate">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="start">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="duration">
+                    <rng:data type="string"/>
+                </rng:attribute>
+            </rng:optional>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="SpikeSourceArray">
+        <rng:element name="SpikeSourceArray">
+            <rng:element name="spike_times">
+                <rng:text/>
+            </rng:element>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="NonStandardCellType">
+        <rng:element name="NonStandardCellType">
+            <rng:attribute name="name">
+		<rng:data type="string"/>
+	    </rng:attribute>
+            <rng:zeroOrMore>
+                <rng:element name="cellparams">
+                    <rng:attribute name="name">
+                        <rng:data type="string"/>
+                    </rng:attribute>
+                    <rng:attribute name="value">
+                        <rng:data type="string"/>
+                    </rng:attribute>
+                </rng:element>
+            </rng:zeroOrMore>
+        </rng:element>
+    </rng:define>
+
+</rng:grammar>

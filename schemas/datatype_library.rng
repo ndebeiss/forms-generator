@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rng:grammar ns="http://debeissat.nicolas.free.fr/sax/datatype_library.rng"
+	xmlns:dtl="http://debeissat.nicolas.free.fr/sax/datatype_library.rng"
+	xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+	xmlns:rng="http://relaxng.org/ns/structure/1.0"
+	datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+	
+	<rng:start>
+		<rng:ref name="datatype"/>
+	</rng:start>
+	
+	<rng:define name="datatype">
+		<rng:element name="dtl:datatype">
+			<rng:attribute name="uri">
+                <rng:choice>
+                    <rng:value>http://www.w3.org/2001/XMLSchema-datatypes</rng:value>
+                </rng:choice>
+            </rng:attribute>
+            <rng:attribute name="localname">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:zeroOrMore>
+                <rng:element name="dtl:param">
+                    <rng:attribute name="localname">
+                        <rng:data type="string"/>
+                    </rng:attribute>
+                    <rng:attribute name="value">
+                        <rng:data type="string"/>
+                    </rng:attribute>
+                </rng:element>
+            </rng:zeroOrMore>
+            <rng:optional>
+                <rng:ref name="context"/>
+            </rng:optional>
+		</rng:element>
+	</rng:define>
+	
+	<rng:define name="context">
+		<rng:element name="dtl:context">
+            <rng:attribute name="uri">
+                <rng:data type="string"/>
+            </rng:attribute>
+			<rng:zeroOrMore>
+                <rng:ref name="map"/>
+            </rng:zeroOrMore>
+		</rng:element>
+	</rng:define>
+    
+	<rng:define name="map">
+		<rng:element name="dtl:map">
+            <rng:attribute name="prefix">
+                <rng:data type="string"/>
+            </rng:attribute>
+			<rng:attribute name="uri">
+                <rng:data type="string"/>
+            </rng:attribute>
+		</rng:element>
+	</rng:define>    
+	
+</rng:grammar>

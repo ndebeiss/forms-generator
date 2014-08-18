@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg:g xmlns:svg="http://www.w3.org/2000/svg"
+	xmlns:z="http://debeissat.nicolas.free.fr/svg3d/svg3d.rng">
+	<svg:path style="fill: yellow" d="M0 -150 L-75 0 L75 0 Z">
+		<z:rotation incRotX="0.07" incRotY="0.1" incRotZ="0.01" />
+		<z:translation z="75" />
+		<z:rotation rotX="0.5236" />
+	</svg:path>
+	<svg:path style="fill: gold" d="M0 -150 L-75 0 L75 0 Z">
+		<z:rotation incRotX="0.07" incRotY="0.1" incRotZ="0.01" />
+		<z:rotation rotY="1.571" />
+		<z:translation z="75" />
+		<z:rotation rotX="0.5236" />
+	</svg:path>
+	<svg:path style="fill: goldenRod" d="M0 -150 L-75 0 L75 0 Z">
+		<z:rotation incRotX="0.07" incRotY="0.1" incRotZ="0.01" />
+		<z:translation z="-75" />
+		<z:rotation rotX="-0.5236" />
+	</svg:path>
+	<svg:path style="fill: DarkGoldenRod" d="M0 -150 L-75 0 L75 0 Z">
+		<z:rotation incRotX="0.07" incRotY="0.1" incRotZ="0.01" />
+		<z:rotation rotY="-1.571" />
+		<z:translation z="75" />
+		<z:rotation rotX="0.5236" />
+	</svg:path>
+</svg:g>

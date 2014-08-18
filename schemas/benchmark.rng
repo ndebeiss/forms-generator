@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rng:grammar xmlns:rng="http://relaxng.org/ns/structure/1.0"
+    xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+    <rng:start>
+        <rng:ref name="benchmark"/>
+    </rng:start>
+    
+    
+    <rng:define name="benchmark">
+        <a:documentation>
+            <style type="text/css">
+                div [id="form"] .element[name="/benchmark"] {
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+			</style>
+        </a:documentation>
+        <rng:element name="benchmark">
+            <rng:attribute name="id">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:attribute name="version">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:element name="description">
+                <rng:text/>
+            </rng:element>
+            <rng:ref name="recording"/>
+            <rng:ref name="analysis"/>
+            <rng:ref name="protocols"/>
+        </rng:element>
+        
+    </rng:define>
+    
+    <rng:define name="recording">
+        <rng:element name="recording">
+            <rng:element name="brain-region">
+                <rng:choice>
+                    <rng:ref name="retina"/>
+                    <rng:ref name="cerebellum"/>
+                </rng:choice>
+            </rng:element>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="retina">
+        <rng:element name="retina">
+            <rng:attribute name="measureable">
+                <rng:choice>
+                    <rng:value>spikes</rng:value>
+                    <rng:value>current</rng:value>
+                </rng:choice>
+            </rng:attribute>
+            
+            <rng:element name="layer_1">
+                <rng:element name="ganglion_cell_layer">
+                    <rng:ref name="celltype"/>
+                </rng:element>
+            </rng:element>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="celltype">
+        <rng:attribute name="celltypes">
+            <rng:list>
+                <rng:zeroOrMore>
+                    <rng:choice>
+                        <rng:value>X-ON</rng:value>
+                        <rng:value>X-OFF</rng:value>
+                        <rng:value>Y-ON</rng:value>
+                        <rng:value>Y-OFF</rng:value>
+                    </rng:choice>
+                </rng:zeroOrMore>
+            </rng:list>
+        </rng:attribute>
+    </rng:define>
+    
+    <rng:define name="cerebellum">
+        <rng:element name="cerebellum">
+            <rng:attribute name="measureable">
+                <rng:choice>
+                    <rng:value>spikes</rng:value>
+                    <rng:value>current</rng:value>
+                </rng:choice>
+            </rng:attribute>
+            
+            <rng:element name="layer_1">
+                <rng:element name="ganglion_cell_layer">
+                    <rng:ref name="celltype"/>
+                </rng:element>
+            </rng:element>
+            <rng:element name="layer_2">
+                <rng:element name="ganglion_cell_layer_2">
+                    <rng:ref name="celltype"/>
+                </rng:element>
+            </rng:element>
+        </rng:element>
+    </rng:define>
+    
+    
+    <rng:define name="analysis">
+        <rng:element name="analysis">
+            <rng:attribute name="difference-measure">
+                <rng:choice>
+                    <rng:value>root-mean-square</rng:value>
+                    <rng:value>mean-square</rng:value>
+                </rng:choice>
+            </rng:attribute>
+            <rng:oneOrMore>
+                <rng:element name="stage">
+                    <rng:choice>
+                        <rng:ref name="spike_histogram"/>
+                        <rng:ref name="raster_plot"/>
+                    </rng:choice>
+                </rng:element>
+            </rng:oneOrMore>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="spike_histogram">
+        <rng:element name="spike_histogram">
+            <rng:element name="parameter">
+                <rng:attribute name="name">
+                    <rng:value>binwidth</rng:value>
+                </rng:attribute>
+                <rng:attribute name="value">
+                    <rng:data type="float"/>
+                </rng:attribute>
+                <rng:ref name="units"/>
+            </rng:element>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="raster_plot">
+        <rng:element name="raster_plot">
+            <rng:element name="parameter">
+                <rng:attribute name="name">
+                    <rng:value>raster_parameter</rng:value>
+                </rng:attribute>
+                <rng:attribute name="value">
+                    <rng:data type="float"/>
+                </rng:attribute>
+                <rng:ref name="units"/>
+            </rng:element>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="protocols">
+        <rng:element name="protocols">
+            <rng:oneOrMore>
+                <rng:element name="protocol">
+                    <rng:attribute name="id">
+                        <rng:data type="string"/>
+                    </rng:attribute>
+                    <rng:attribute name="repetitions">
+                        <rng:data type="integer"/>
+                    </rng:attribute>
+                    <rng:attribute name="weight">
+                        <rng:data type="float"/>
+                    </rng:attribute>
+                    <rng:attribute name="duration">
+                        <rng:data type="float"/>
+                    </rng:attribute>
+                    <rng:element name="stimulus_file">
+                        <rng:attribute name="scale-factor">
+                            <rng:data type="float"/>
+                            <a:documentation>
+                                pixels/degree
+                            </a:documentation>
+                        </rng:attribute>
+                        <rng:attribute name="max-luminance">
+                            <rng:data type="float"/>
+                            <a:documentation>
+                                cd/m²
+                            </a:documentation>
+                        </rng:attribute>
+                        <rng:attribute name="img">
+                            <rng:data type="anyURI"/>
+                        </rng:attribute>
+                    </rng:element>
+                    <rng:element name="comparison-data">
+                        <rng:choice>
+                            <rng:ref name="url"/>
+                            <rng:ref name="value"/>
+                        </rng:choice>
+                    </rng:element>
+                </rng:element>
+            </rng:oneOrMore>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="url">
+        <rng:attribute name="url">
+            <rng:data type="anyURI"/>
+        </rng:attribute>
+    </rng:define>
+    
+    <rng:define name="value">
+        <rng:attribute name="value">
+            <rng:data type="string"/>
+        </rng:attribute>
+        <rng:ref name="units"/>
+    </rng:define>
+    
+    <rng:define name="units">
+        <rng:attribute name="units">
+            <rng:choice>
+                <rng:value>ms</rng:value>
+                <rng:value>s</rng:value>
+            </rng:choice>
+        </rng:attribute>
+    </rng:define>
+    
+    
+</rng:grammar>

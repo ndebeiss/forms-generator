@@ -1,0 +1,7 @@
+<nitf xmlns="http://relaxng.org/ns/structure/1.0" id="anId">
+    <body>
+        <body.end>
+            <bibliography id="anotherId">tre</bibliography>
+        </body.end>
+    </body>
+</nitf>

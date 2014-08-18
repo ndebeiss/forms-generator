@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rng:grammar ns="http://FacetsML/randomNumberGenerator"
+    xmlns:rng="http://relaxng.org/ns/structure/1.0"
+    xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+    
+    <rng:start combine="choice">
+        <rng:ref name="random"/>
+    </rng:start>
+
+    <rng:define name="random">
+        <rng:choice>
+            <rng:ref name="uniform"/>
+        </rng:choice>
+    </rng:define>
+    
+    <rng:define name="uniform">
+        <rng:element name="uniform">
+            <rng:attribute name="min">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="max">
+                <rng:data type="float"/>
+            </rng:attribute>
+	</rng:element>
+    </rng:define>
+    
+</rng:grammar>

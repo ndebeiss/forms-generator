@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg:g xmlns:svg="http://www.w3.org/2000/svg"
+	xmlns:z="http://debeissat.nicolas.free.fr/svg3d/svg3d.rng" z:sortAlgo="allToAll">
+	<svg:path style="fill: black;" d="M-60,0 C-60,90 60,90 60,0">
+        <z:rotation incRotX="0.07" incRotY="0.1" incRotZ="0.3"/>
+    </svg:path>
+	<svg:path style="fill: purple;" d="M-60,0 C-60,90 60,90 60,0">
+        <z:rotation rotX="0.628" incRotX="0.07" incRotY="0.1" incRotZ="0.3"/>
+    </svg:path>
+	<svg:path style="fill: indigo;" d="M-60,0 C-60,90 60,90 60,0">
+        <z:rotation rotX="1.257" incRotX="0.07" incRotY="0.1" incRotZ="0.3"/>
+    </svg:path>
+	<svg:path style="fill: blue;" d="M-60,0 C-60,90 60,90 60,0">
+        <z:rotation rotX="1.885" incRotX="0.07" incRotY="0.1" incRotZ="0.3"/>
+    </svg:path>
+	<svg:path style="fill: cyan;" d="M-60,0 C-60,90 60,90 60,0">
+        <z:rotation rotX="2.513" incRotX="0.07" incRotY="0.1" incRotZ="0.3"/>
+    </svg:path>
+	<svg:path style="fill: green;" d="M-60,0 C-60,90 60,90 60,0">
+        <z:rotation rotX="3.142" incRotX="0.07" incRotY="0.1" incRotZ="0.3"/>
+    </svg:path>
+	<svg:path style="fill: greenyellow;" d="M-60,0 C-60,90 60,90 60,0">
+        <z:rotation rotX="3.770" incRotX="0.07" incRotY="0.1" incRotZ="0.3"/>
+    </svg:path>
+	<svg:path style="fill: yellow;" d="M-60,0 C-60,90 60,90 60,0">
+        <z:rotation rotX="4.398" incRotX="0.07" incRotY="0.1" incRotZ="0.3"/>
+    </svg:path>
+	<svg:path style="fill: orange;" d="M-60,0 C-60,90 60,90 60,0">
+        <z:rotation rotX="5.027" incRotX="0.07" incRotY="0.1" incRotZ="0.3"/>
+    </svg:path>
+	<svg:path style="fill: red;" d="M-60,0 C-60,90 60,90 60,0">
+        <z:rotation rotX="5.655" incRotX="0.07" incRotY="0.1" incRotZ="0.3"/>
+    </svg:path>
+</svg:g>

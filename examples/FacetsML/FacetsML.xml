@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<network xmlns="http://FacetsML"
+    xmlns:class="http://FacetsML/cellclass"
+    xmlns:rand="http://FacetsML/randomNumberGenerator"
+    timestep="0.1" min_delay="0.1" max_delay="0.1" sim_duration="0.2">
+    
+    <extra name="threads" value="2"/>
+    <rng name="rng" seed="1328" generator="NumpyRNG"/>
+    <cells>
+        <cell name="cellA">
+            <class:IF_curr_alpha tau_syn="3.141592654"/>
+        </cell>
+        <cell name="cellB">
+            <class:NonStandardCellType name="LifNeuron">
+                <class:cellparams name="Rm" value="5e6"/>
+                <class:cellparams name="Vthresh" value="-0.055"/>
+            </class:NonStandardCellType>
+        </cell>
+    </cells>
+    <populations>
+        <population name="CellGroupA" label="iurghiushrg">
+            <dim size="3"/>
+            <dim size="3"/>
+            <cell_type name="cellA"/>
+            <randomInit rng="rng">
+                <rand:uniform min="-60." max="-50."/>
+            </randomInit>
+        </population>
+        <population name="CellGroupB" label="iurghiushrg2">
+            <dim size="3"/>
+            <dim size="3"/>
+            <cell_type name="cellB"/>
+            <randomInit rng="rng">
+                <rand:uniform min="-60." max="-50."/>
+            </randomInit>
+        </population>
+    </populations>
+    
+    <projections>
+        <projection name="id"
+            presynaptic_population_name="CellGroupA"
+            postsynaptic_population_name="CellGroupB"
+            method="fixedProbability"
+            weight="0.5"
+            source="distrib_Numpy"
+            target="target"
+            label="label"
+            rng="rng">
+            <methodParameter name="p_connect" value="0.5"/>
+        </projection>
+    </projections>
+    
+    
+</network>

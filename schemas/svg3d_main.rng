@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rng:grammar ns="http://www.w3.org/2000/svg"
+	xmlns:svg="http://www.w3.org/2000/svg"
+	xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+	xmlns:rng="http://relaxng.org/ns/structure/1.0"
+	xmlns:z="http://debeissat.nicolas.free.fr/svg3d/svg3d.rng"
+	datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+	
+	<rng:start>
+		<rng:ref name="g"/>
+	</rng:start>
+	
+	<rng:define name="g">
+		<rng:element name="svg:g">
+            <rng:optional>
+                <a:documentation>defines the distance from the observer to the screen.</a:documentation>
+                <rng:attribute name="z:focalDistance">
+                    <rng:data type="decimal"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <a:documentation>used in order to reduce value of z coordinates, that way the image is not too much distorted.</a:documentation>
+                <rng:attribute name="z:zRatio">
+                    <rng:data type="decimal"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <a:documentation>defines the x coordinate of the center of the axes, after projection on screen.</a:documentation>
+                <rng:attribute name="z:xOrigin">
+                    <rng:data type="decimal"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <a:documentation>defines the y coordinate of the center of the axes, after projection on screen.</a:documentation>
+                <rng:attribute name="z:yOrigin">
+                    <rng:data type="decimal"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <a:documentation>defines the interval time between two transformations, in miliseconds.</a:documentation>
+                <rng:attribute name="z:rotationTime">
+                    <rng:data type="integer"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <a:documentation>defines the sorting algorithm which will be used, depending on the image and performance needed.</a:documentation>
+                <rng:attribute name="z:sortAlgo">
+                    <rng:choice>
+                        <rng:value>none</rng:value>
+                        <rng:value>averageZ</rng:value>
+                        <rng:value>oneToAll</rng:value>
+                        <rng:value>allToAll</rng:value>
+                    </rng:choice>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <a:documentation>for debugging purposes, will display the calculated director vectors of each SVG element.</a:documentation>
+                <rng:attribute name="z:showDirectorVector">
+                    <rng:choice>
+                        <rng:value>true</rng:value>
+                        <rng:value>false</rng:value>
+                    </rng:choice>
+                </rng:attribute>
+            </rng:optional>
+			<rng:oneOrMore>
+				<rng:choice>
+					<rng:ref name="path"/>
+                    <rng:ref name="polyline"/>
+                    <rng:ref name="rect"/>
+                    <rng:ref name="circle"/>
+				</rng:choice>
+			</rng:oneOrMore>		
+		</rng:element>
+	</rng:define>
+	
+	<rng:define name="path">
+		<rng:element name="svg:path">
+			<rng:attribute name="d">
+				<rng:data type="string"/>
+			</rng:attribute>
+			<rng:optional>
+				<rng:attribute name="style">
+					<rng:data type="string"/>
+				</rng:attribute>
+			</rng:optional>
+            <rng:optional>
+                <a:documentation>tells the parser whether coordinates are declared in 3 dimensions or not.</a:documentation>
+                <rng:attribute name="z:threeD">
+                    <rng:choice>
+                        <rng:value>true</rng:value>
+                        <rng:value>false</rng:value>
+                    </rng:choice>
+                </rng:attribute>
+            </rng:optional>
+            <rng:ref name="3dtransformations"/>
+		</rng:element>
+	</rng:define>
+	
+	<rng:define name="polyline">
+		<rng:element name="svg:polyline">
+            <rng:attribute name="points">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:optional>
+                <a:documentation>tells the parser whether coordinates are declared in 3 dimensions or not.</a:documentation>
+                <rng:attribute name="z:threeD">
+                    <rng:choice>
+                        <rng:value>true</rng:value>
+                        <rng:value>false</rng:value>
+                    </rng:choice>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+				<rng:attribute name="style">
+					<rng:data type="string"/>
+				</rng:attribute>
+			</rng:optional>
+            <rng:optional>
+				<rng:attribute name="fill">
+					<rng:data type="string"/>
+				</rng:attribute>
+			</rng:optional>
+            <rng:optional>
+				<rng:attribute name="stroke">
+					<rng:data type="string"/>
+				</rng:attribute>
+			</rng:optional>
+            <rng:optional>
+				<rng:attribute name="stroke-width">
+					<rng:data type="string"/>
+				</rng:attribute>
+			</rng:optional>
+			<rng:ref name="3dtransformations"/>
+		</rng:element>
+	</rng:define>
+	
+    <rng:define name="rect">
+		<rng:element name="svg:rect">
+			<rng:attribute name="x">
+				<rng:data type="string"/>
+			</rng:attribute>
+			<rng:attribute name="y">
+				<rng:data type="string"/>
+			</rng:attribute>
+			<rng:attribute name="width">
+				<rng:data type="string"/>
+			</rng:attribute>
+			<rng:attribute name="height">
+				<rng:data type="string"/>
+			</rng:attribute>
+			<rng:optional>
+				<rng:attribute name="rx">
+					<rng:data type="string"/>
+				</rng:attribute>
+			</rng:optional>
+			<rng:optional>
+				<rng:attribute name="ry">
+					<rng:data type="string"/>
+				</rng:attribute>
+			</rng:optional>
+			<rng:optional>
+				<rng:attribute name="style">
+					<rng:data type="string"/>
+				</rng:attribute>
+			</rng:optional>
+            <rng:ref name="3dtransformations"/>
+		</rng:element>
+	</rng:define>
+    
+    <rng:define name="circle">
+		<rng:element name="svg:circle">
+			<rng:attribute name="r">
+				<rng:data type="string"/>
+			</rng:attribute>
+			<rng:attribute name="cx">
+				<rng:data type="string"/>
+			</rng:attribute>
+			<rng:attribute name="cy">
+				<rng:data type="string"/>
+			</rng:attribute>
+            <rng:optional>
+                <a:documentation>tells the parser whether coordinates are declared in 3 dimensions or not.</a:documentation>
+                <rng:attribute name="z:threeD">
+                    <rng:choice>
+                        <rng:value>true</rng:value>
+                        <rng:value>false</rng:value>
+                    </rng:choice>
+                </rng:attribute>
+            </rng:optional>
+			<rng:optional>
+				<rng:attribute name="z:cz">
+					<rng:data type="string"/>
+				</rng:attribute>
+			</rng:optional>
+			<rng:optional>
+				<rng:attribute name="style">
+					<rng:data type="string"/>
+				</rng:attribute>
+			</rng:optional>
+            <rng:ref name="3dtransformations"/>
+		</rng:element>
+	</rng:define>
+    
+    <rng:define name="3dtransformations">
+		<rng:oneOrMore>
+			<rng:choice>
+				<rng:ref name="rotation"/>
+				<rng:ref name="translation"/>
+                <rng:ref name="optimizedrotation"/>
+			</rng:choice>
+		</rng:oneOrMore>
+	</rng:define>
+	
+	<rng:define name="rotation">
+		<rng:element name="z:rotation">
+			<rng:attribute name="rotX">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="rotY">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="rotZ">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incRotX">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incRotY">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incRotZ">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+		</rng:element>
+	</rng:define>
+	
+	<rng:define name="translation">
+		<rng:element name="z:translation">
+			<rng:attribute name="x">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="y">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="z">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incX">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incY">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incZ">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+		</rng:element>
+	</rng:define>
+    
+    <rng:define name="optimizedrotation">
+		<rng:element name="z:optimizedrotation">
+			<rng:attribute name="cosX">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="cosY">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="cosZ">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incCosX">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incCosY">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incCosZ">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+            <rng:attribute name="sinX">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="sinY">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="sinZ">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incSinX">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incSinY">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+			<rng:attribute name="incSinZ">
+				<rng:data type="decimal"/>
+			</rng:attribute>
+		</rng:element>
+	</rng:define>
+    
+</rng:grammar>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<network xmlns="http://FacetsML"
+	xmlns:class="http://FacetsML/cellclass"
+	xmlns:rand="http://FacetsML/randomNumberGenerator"
+	timestep="0.1" min_delay="0.1" max_delay="0.1" sim_duration="1000">
+	
+	<extra name="threads" value="2"/>
+	<rng name="rng" seed="98765" generator="NumpyRNG"/>
+	<cells>
+		<cell name="cellA">
+			<class:IF_cond_exp i_offset="0.1" v_init="-65.0" tau_m="20." tau_syn_E="5." tau_syn_I="10."
+				v_rest="-60." v_reset="-60." v_thresh="-50."
+				cm="1." tau_refrac="5." e_rev_E="0."
+				e_rev_I="-80."/>
+		</cell>
+		<cell name="cellB">
+			<class:SpikeSourcePoisson rate="100." duration="50."/>
+		</cell>
+	</cells>
+	
+	<populations>
+		<population name="exc_cells" label="Excitatory_Cells">
+			<dim size="4000"/>
+			<cell_type name="cellA"/>
+			<randomInit rng="rng">
+				<rand:uniform min="-60." max="-50."/>
+			</randomInit>
+		</population>
+		<population name="inh_cells" label="Inhibitory_Cells">
+			<dim size="1000"/>
+			<cell_type name="cellA"/>
+			<randomInit rng="rng">
+				<rand:uniform min="-60." max="-50."/>
+			</randomInit>
+		</population>
+		<population name="ext_stim" label="expoisson">
+			<dim size="10"/>
+			<cell_type name="cellB"/>
+		</population>
+	</populations>
+	
+	<projections>
+		<projection name="e2e"
+			presynaptic_population_name="exc_cells"
+			postsynaptic_population_name="exc_cells"
+			method="fixedProbability"
+			weight="0.004"
+			target="excitatory"
+			rng="rng">
+			<methodParameter name="p_connect" value="0.02"/>
+		</projection>
+		<projection name="e2i"
+			presynaptic_population_name="exc_cells"
+			postsynaptic_population_name="inh_cells"
+			method="fixedProbability"
+			weight="0.004"
+			target="excitatory"
+			rng="rng">
+			<methodParameter name="p_connect" value="0.02"/>
+		</projection>
+		<projection name="i2e"
+			presynaptic_population_name="inh_cells"
+			postsynaptic_population_name="exc_cells"
+			method="fixedProbability"
+			weight="0.051"
+			target="inhibitory"
+			rng="rng">
+			<methodParameter name="p_connect" value="0.02"/>
+		</projection>
+		<projection name="i2i"
+			presynaptic_population_name="inh_cells"
+			postsynaptic_population_name="inh_cells"
+			method="fixedProbability"
+			weight="0.051"
+			target="inhibitory"
+			rng="rng">
+			<methodParameter name="p_connect" value="0.02"/>
+		</projection>
+		<projection name="ext2e"
+			presynaptic_population_name="ext_stim"
+			postsynaptic_population_name="exc_cells"
+			method="fixedProbability"
+			weight="0.1"
+			target="excitatory"
+			rng="rng">
+			<methodParameter name="p_connect" value="0.005"/>
+		</projection>
+		<projection name="ext2i"
+			presynaptic_population_name="ext_stim"
+			postsynaptic_population_name="inh_cells"
+			method="fixedProbability"
+			weight="0.1"
+			target="excitatory"
+			rng="rng">
+			<methodParameter name="p_connect" value="0.005"/>
+		</projection>
+	</projections>
+	
+	
+</network>

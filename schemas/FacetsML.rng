@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rng:grammar ns="http://FacetsML"
+    xmlns="http://FacetsML"
+    xmlns:rng="http://relaxng.org/ns/structure/1.0"
+    xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+    xmlns:class="http://FacetsML/cellclass"
+    xmlns:rand="http://FacetsML/randomNumberGenerator"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+    
+    <rng:include ns="http://FacetsML/cellclass" href="../../forms/schemas/cellclass.rng"/>
+    <rng:include ns="http://FacetsML/randomNumberGenerator" href="../../forms/schemas/random.rng"/>
+    
+    <rng:start>
+        <rng:ref name="network"/>
+    </rng:start>
+    
+    <rng:define name="network">
+        <rng:element name="network">
+            <rng:attribute name="timestep">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="min_delay">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="max_delay">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <a:documentation>(ms) simulaton duration</a:documentation>
+            <rng:attribute name="sim_duration">
+                <rng:data type="float"/>
+            </rng:attribute>
+            
+            <rng:interleave>
+                <rng:ref name="extras"/>
+                <rng:ref name="rng"/>
+                <rng:ref name="cells"/>
+                <rng:ref name="populations"/>
+                <rng:ref name="projections"/>
+            </rng:interleave>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="extras">
+        <rng:oneOrMore>
+            <rng:ref name="extra"/>
+        </rng:oneOrMore>
+    </rng:define>
+    
+    <rng:define name="extra">
+        <rng:element name="extra">
+            <rng:attribute name="name">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:attribute name="value">
+                <rng:data type="string"/>
+            </rng:attribute>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="rng">
+        <rng:element name="rng">
+            <rng:attribute name="name">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:attribute name="seed">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="generator">
+                <rng:choice>
+                    <rng:value>NumpyRNG</rng:value>
+                    <rng:value>GSLRNG</rng:value>
+                </rng:choice>
+            </rng:attribute>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="cells">
+        <rng:element name="cells">
+            <rng:oneOrMore>
+                <rng:ref name="cell"/>
+            </rng:oneOrMore>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="cell">
+        <rng:element name="cell">
+            <rng:attribute name="name">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:ref name="cellclass"/>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="populations">
+        <rng:element name="populations">
+            <rng:oneOrMore>
+                <rng:ref name="population"/>
+            </rng:oneOrMore>
+        </rng:element>
+    </rng:define>
+    
+    
+    <rng:define name="population">
+        <rng:element name="population">
+            <rng:attribute name="name">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:optional>
+                <rng:attribute name="label">
+                    <rng:data type="string"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:oneOrMore>
+                <rng:element name="dim">
+                    <rng:attribute name="size">
+                        <rng:data type="integer"/>
+                    </rng:attribute>
+                </rng:element>
+            </rng:oneOrMore>
+            <rng:element name="cell_type">
+                <rng:attribute name="name">
+                    <rng:data type="string"/>
+                </rng:attribute>
+            </rng:element>
+            <rng:optional>
+                <rng:element name="randomInit">
+                    <rng:attribute name="rng">
+                        <rng:data type="string"/>
+                    </rng:attribute>
+                    <rng:ref name="random"/>
+                </rng:element>
+            </rng:optional>
+        </rng:element>
+    </rng:define>
+    
+    
+    
+    <rng:define name="projections">
+        <rng:element name="projections">
+            <rng:zeroOrMore>
+                <rng:ref name="projection"/>
+            </rng:zeroOrMore>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="projection">
+        <rng:element name="projection">
+            <a:documentation>
+                presynaptic_population and postsynaptic_population - Population objects.
+                <br/>
+                source - string specifying which attribute of the presynaptic cell signals action potentials
+                <br/>                
+                target - string specifying which synapse on the postsynaptic cell to connect to
+                If source and/or target are not given, default values are used.
+                <br/>
+                method - string indicating which algorithm to use in determining connections.
+                Allowed methods are 'allToAll', 'oneToOne', 'fixedProbability',
+                'distanceDependentProbability', 'fixedNumberPre', 'fixedNumberPost',
+                'fromFile', 'fromList'
+                <br/>
+                methodParameters - dict containing parameters needed by the connection method,
+                although we should allow this to be a number or string if there is only
+                one parameter.
+                <br/>
+                WARNING : in the test, the value given is not a dict, but the directy value of the parameter
+                <br/>
+                rng - since most of the connection methods need uniform random numbers,
+                it is probably more convenient to specify a RNG object here rather
+                than within methodParameters, particularly since some methods also use
+                random numbers to give variability in the number of connections per cell.
+            </a:documentation>
+            <rng:attribute name="name">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:attribute name="presynaptic_population_name">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:attribute name="postsynaptic_population_name">
+                <rng:data type="string"/>
+            </rng:attribute>
+            <rng:attribute name="method">
+                <rng:choice>
+                    <rng:value>allToAll</rng:value>
+                    <rng:value>oneToOne</rng:value>
+                    <rng:value>fixedProbability</rng:value>
+                    <rng:value>distanceDependentProbability</rng:value>
+                    <rng:value>fixedNumberPre</rng:value>
+                    <rng:value>fixedNumberPost</rng:value>
+                    <rng:value>fromFile</rng:value>
+                </rng:choice>
+            </rng:attribute>
+            <rng:zeroOrMore>
+                <rng:element name="methodParameter">
+                    <rng:attribute name="name">
+                        <rng:data type="string"/>
+                    </rng:attribute>
+                    <rng:attribute name="value">
+                        <rng:data type="string"/>
+                    </rng:attribute>
+                </rng:element>
+            </rng:zeroOrMore>
+            <rng:optional>
+                <rng:attribute name="weight">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="source">
+                    <rng:data type="string"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="target">
+                    <rng:data type="string"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="label">
+                    <rng:data type="string"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="rng">
+                    <rng:data type="string"/>
+                </rng:attribute>
+            </rng:optional>
+        </rng:element>
+    </rng:define>
+    
+</rng:grammar>

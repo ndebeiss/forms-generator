@@ -1,0 +1,4371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- An experimental RELAX NG schema for NITF 3.1 -->
+<!-- no official namespace yet, could be something like:
+       urn:nitf:iptc.org.20010418.NITF
+-->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+         xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">
+
+  <a:documentation>
+  News Industry Text Format
+  Document Type Definition - Version 3.1
+  July 4, 2002
+  http://www.nitf.org
+  
+  Copyright (c) 2002. All Rights Reserved.
+  International Press Telecommunications Council
+  http://www.iptc.org
+  
+  NITF 3.1 Modifications:
+        New recommendations for date formats:
+        YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative)
+        Use YYYYMMDD000000-HHMM when no time is available
+        (before the HHMM time, the "-" or "+" character may be used)
+        For these elements:
+        date.issue, date.release, date.expire, startdate, enddate, date.publication,
+        revision-history, rights.startdate, rights.enddate, story.date,
+        chron, event's start-date and end-date, money
+        Added management-status and management-idref-status attributes to docdata element
+        values of: usable | embargoed | withheld | canceled
+        Added management-doc-idref attributes to docdata element
+        Added an optional gender attribute to PERSON element
+        Made units attribute of media-reference be optional
+  
+  For the list of modifications from previous releases, see:
+        http://www.nitf.org/site/recent-modifications.html
+  
+  For the list of proposed modifications, see:
+        http://www.nitf.org/site/proposed-changes.html
+  </a:documentation>  
+
+  <start>
+    <choice>
+      <ref name="nitf"/>
+    </choice>
+  </start>
+
+  <a:documentation>
+  ****************************************************************
+  DTD Entities
+  ****************************************************************
+  </a:documentation>
+
+  <define name="enriched-text">
+    <choice>
+      <text/>
+      <ref name="chron"/>
+      <ref name="classifier"/>
+      <ref name="copyrite"/>
+      <ref name="event"/>
+      <ref name="function"/>
+      <ref name="location"/>
+      <ref name="money"/>
+      <ref name="num"/>
+      <ref name="object.title"/>
+      <ref name="org"/>
+      <ref name="person"/>
+      <ref name="postaddr"/>
+      <ref name="virtloc"/>
+      <ref name="a"/>
+      <ref name="br"/>
+      <ref name="em"/>
+      <ref name="lang"/>
+      <ref name="pronounce"/>
+      <ref name="q"/>
+    </choice>
+  </define>
+
+  <define name="block.start">
+    <optional>
+      <ref name="tobject"/>
+    </optional>
+    <optional>
+      <ref name="key-list"/>
+    </optional>
+    <zeroOrMore>
+      <ref name="classifier"/>
+    </zeroOrMore>
+    <optional>
+      <ref name="byline"/>
+    </optional>
+    <optional>
+      <ref name="dateline"/>
+    </optional>
+    <optional>
+      <ref name="copyrite"/>
+    </optional>
+    <optional>
+      <ref name="abstract"/>
+    </optional>
+  </define>
+
+  <define name="block.content">
+    <choice>
+      <ref name="p"/>
+      <ref name="hl2"/>
+      <ref name="table"/>
+      <ref name="nitf-table"/>
+      <ref name="media"/>
+      <ref name="ol"/>
+      <ref name="ul"/>
+      <ref name="dl"/>
+      <ref name="bq"/>
+      <ref name="fn"/>
+      <ref name="note"/>
+      <ref name="pre"/>
+      <ref name="hr"/>
+    </choice>
+  </define>
+
+  <define name="block.end">
+    <optional>
+      <ref name="datasource"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+  Attribute entities
+  </a:documentation>
+
+  <define name="global-attributes">
+    <optional>
+      <attribute name="id">
+        <data type="ID"/>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="common-attributes">
+    <a:documentation>
+    Note that any element that has common-attributes, also has that
+    id attribute, lifted from global-attributes
+    </a:documentation>
+    <optional>
+      <attribute name="id">
+        <data type="ID"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="class">
+        <data type="NMTOKENS"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="style"/>
+    </optional>
+  </define>
+
+  <define name="cell.align">
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>center</value>
+          <value>right</value>
+          <value>justify</value>
+          <value>char</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="char"/>
+    </optional>
+    <optional>
+      <attribute name="charoff"/>
+    </optional>
+  </define>
+
+  <define name="cell.valign">
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+          <value>baseline</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <define name="boolean">
+    <choice>
+      <value>true</value>
+      <value>false</value>
+    </choice>
+  </define>
+
+  <a:documentation>
+    ****************************************************************
+    nitf
+    ****************************************************************
+  </a:documentation>
+
+  <define name="nitf">
+    <element name="nitf">
+      <ref name="attlist.nitf"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <ref name="body"/>
+    </element>
+  </define>
+
+  <define name="attlist.nitf" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="uno"/>
+    </optional>
+    <optional>
+      <attribute name="version" a:defaultValue="-//IPTC//DTD NITF 3.1//EN">
+        <value type="string">-//IPTC//DTD NITF 3.1//EN</value>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="change.date" a:defaultValue="July 3, 2002">
+        <value type="string" datatypeLibrary="">July 3, 2002</value>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="change.time" a:defaultValue="19:30">
+        <value type="string" datatypeLibrary="">19:30</value>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="baselang"/>
+    </optional>
+    <optional>
+      <attribute name="class">
+        <data type="NMTOKENS"/>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element             nitf
+    Partial description The root element for NITF.
+    Full description    News Industry Text Format instance. Holds head and body.
+    
+    id                  An XML-specific identifier for the element.
+    uno                 The universally unique identifier for the document.
+    version             This DTD's formal public identifier.
+    change.date         Date when this DTD was last changed.
+    change.time         Time when this DTD was last changed.
+    baselang            Base language for document. Uses en-US (per ISO 639 and 3166).
+    class               An open placeholder for categorization.
+  </a:documentation>
+
+  <a:documentation>
+    ****************************************************************
+    head
+    ****************************************************************
+  </a:documentation>
+
+  <define name="head">
+    <element name="head">
+      <ref name="attlist.head"/>
+      <optional>
+        <ref name="title"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="meta"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="tobject"/>
+      </optional>
+      <optional>
+        <ref name="iim"/>
+      </optional>
+      <optional>
+        <ref name="docdata"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="pubdata"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="revision-history"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.head" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element             head
+    Partial description Holds metadata about the document as a whole.
+    Full description    Generally does not hold information for direct display to user. Portions of the metadata, though, are often rendered to augment an article.
+    
+    id                  Unique identifier for the element.
+  </a:documentation>
+
+  <define name="title">
+    <element name="title">
+      <ref name="attlist.title"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.title" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="type">
+        <choice>
+          <value>main</value>
+          <value>subtitle</value>
+          <value>parttitle</value>
+          <value>alternate</value>
+          <value>abbrev</value>
+          <value>other</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element             title
+    Partial description Document Title.
+    Full description    Often displayed within a result-list after a search finds this article.
+    
+    id                  Unique identifier for the element.
+    type		A categorization for title. (Controlled vocabulary.)
+  </a:documentation>
+
+  <define name="meta">
+    <element name="meta">
+      <ref name="attlist.meta"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.meta" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="http-equiv">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="name">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <attribute name="content"/>
+  </define>
+
+
+  <a:documentation>
+    Element		meta
+    Partial description	A construct for sending generic metadata.
+    Full description	Normally is undisplayed.
+    
+    id			Unique identifier for the element.
+    http-equiv		HTTP response header name.
+    name		Name used for this piece of metadata.
+    content		Content associated with the specified name.
+  </a:documentation>
+
+  <define name="tobject">
+    <element name="tobject">
+      <ref name="attlist.tobject"/>
+      <zeroOrMore>
+        <ref name="tobject.property"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="tobject.subject"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.tobject" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="tobject.type" a:defaultValue="news"/>
+    </optional>
+  </define>
+
+
+  <a:documentation>
+    Element		tobject
+    Partial description	Subject code.
+    Full description	Used to identify the type of the news material, based on a Subject Code system.
+    
+    id			Unique identifier for the element.
+    tobject.type	Expanded from News, Data, and Advisory. See NewsML topic set.
+  </a:documentation>
+
+  <define name="tobject.property">
+    <element name="tobject.property">
+      <ref name="attlist.tobject.property"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.tobject.property" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="tobject.property.type" a:defaultValue="current"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		tobject.property
+    Partial description	Subject code property.
+    Full description	Assigns a property to the object type.
+    
+    id			Unique identifier for the element.
+    tobject.property.type	Includes such items as analysis, feature, and obituary.
+  </a:documentation>
+
+  <define name="tobject.subject">
+    <element name="tobject.subject">
+      <ref name="attlist.tobject.subject"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.tobject.subject" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="tobject.subject.ipr" a:defaultValue="IPTC"/>
+    </optional>
+    <attribute name="tobject.subject.refnum">
+      <data type="NMTOKEN"/>
+    </attribute>
+    <optional>
+      <attribute name="tobject.subject.code"/>
+    </optional>
+    <optional>
+      <attribute name="tobject.subject.type"/>
+    </optional>
+    <optional>
+      <attribute name="tobject.subject.matter"/>
+    </optional>
+    <optional>
+      <attribute name="tobject.subject.detail"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		tobject.subject
+    Partial description	Assigns subject information to news material based on a Subject Code system.
+    Full description	A three-tiered hierarchy consisting of broad subjects, secondary topics (Subject Matter), and tertiary topics (Subject Detail).
+    
+    id			Unique identifier for the element.
+    tobject.subject.ipr	Information provider reference.
+    tobject.subject.refnum	Eight-digit reference number for all three levels.
+    tobject.subject.code	Three-letter code for the subject type. This attribute is deprecated.
+    tobject.subject.type	First-tier subject description.
+    tobject.subject.matter	Second-tier subject description.
+    tobject.subject.detail	Third-tier subject description.
+  </a:documentation>
+
+  <define name="iim">
+    <element name="iim">
+      <ref name="attlist.iim"/>
+      <zeroOrMore>
+        <ref name="ds"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.iim" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="ver">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		iim
+    Partial description	IIM Record 2 Data Container.
+    Full description	Location for IIM Record 2 DataSet information.
+    
+    id			Unique identifier for the element.
+    ver			IIM version number.
+  </a:documentation>
+
+  <define name="ds">
+    <element name="ds">
+      <ref name="attlist.ds"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.ds" combine="interleave">
+    <ref name="global-attributes"/>
+    <attribute name="num">
+      <data type="NMTOKEN"/>
+    </attribute>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		ds
+    Partial description	IIM Record 2 dataset information.
+    Full description	IIM Record 2 dataset information (Record 2 Only).
+    
+    id			Unique identifier for the element.
+    num			IIM field number.
+    value		IIM field value.
+  </a:documentation>
+
+  <define name="docdata">
+    <element name="docdata">
+      <ref name="attlist.docdata"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="correction"/>
+          <ref name="evloc"/>
+          <ref name="doc-id"/>
+          <ref name="del-list"/>
+          <ref name="urgency"/>
+          <ref name="fixture"/>
+          <ref name="date.issue"/>
+          <ref name="date.release"/>
+          <ref name="date.expire"/>
+          <ref name="doc-scope"/>
+          <ref name="series"/>
+          <ref name="ed-msg"/>
+          <ref name="du-key"/>
+          <ref name="doc.copyright"/>
+          <ref name="doc.rights"/>
+          <ref name="key-list"/>
+          <ref name="identified-content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.docdata" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="management-status">
+        <choice>
+          <value>usable</value>
+          <value>embargoed</value>
+          <value>withheld</value>
+          <value>canceled</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="management-doc-idref"/>
+    </optional>
+    <optional>
+      <attribute name="management-idref-status">
+        <choice>
+          <value>usable</value>
+          <value>embargoed</value>
+          <value>withheld</value>
+          <value>canceled</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element			docdata
+    Partial description		Document metadata.
+    Full description		Container for metadata information about this particular document.
+    
+    id				Unique identifier for the element.
+    management-status		Defines whether this document is a cancellation of a previous doc, and other news management properties.
+    management-doc-idref	Used in conjunction with management-status. Details which document the current one is an update to, etc.
+    management-idref-status	When a management-doc-idref is specified, this attribute contains the new status for that referenced document.
+  </a:documentation>
+
+  <define name="correction">
+    <element name="correction">
+      <ref name="attlist.correction"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.correction" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="info"/>
+    </optional>
+    <optional>
+      <attribute name="id-string"/>
+    </optional>
+    <optional>
+      <attribute name="regsrc"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		correction
+    Partial description	Correction information.
+    Full description	Indicates that the item is a correction to a previously published document.
+    
+    id			Unique identifier for the element.
+    info		Contains actual message or instructions regarding the correction.
+    id-string		Document identification string, such as UNO or doc-id.
+    regsrc		Identifies the source of the correction.
+  </a:documentation>
+
+  <define name="evloc">
+    <element name="evloc">
+      <ref name="attlist.evloc"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.evloc" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="iso-cc"/>
+    </optional>
+    <optional>
+      <attribute name="state-prov"/>
+    </optional>
+    <optional>
+      <attribute name="county-dist"/>
+    </optional>
+    <optional>
+      <attribute name="city"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		evloc
+    Partial description	Event location.
+    Full description	Where an event took place (as opposed to where the story was written).
+    
+    id			Unique identifier for the element.
+    iso-cc		Country code as specified in ISO 3166.
+    state-prov		State or province where the event occurred.
+    county-dist		County or district name.
+    city		City or municipality name.
+  </a:documentation>
+
+  <define name="doc-id">
+    <element name="doc-id">
+      <ref name="attlist.doc-id"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.doc-id" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="regsrc"/>
+    </optional>
+    <optional>
+      <attribute name="id-string"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		doc-id
+    Partial description	Registered identification for document.
+    Full description	Character string that provides a unique, persistent identification for a document.
+    
+    id			Unique identifier for the element.
+    regsrc		Identifies the source of the document or action.
+    id-string		Document identification string.
+  </a:documentation>
+
+  <define name="del-list">
+    <element name="del-list">
+      <ref name="attlist.del-list"/>
+      <zeroOrMore>
+        <ref name="from-src"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.del-list" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		del-list
+    Partial description	Delivery trail of delivery services.
+    Full description	Holds an ordered list of the distribution services that have been involved in the delivery of the document.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="from-src">
+    <element name="from-src">
+      <ref name="attlist.from-src"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.from-src" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="src-name"/>
+    </optional>
+    <optional>
+      <attribute name="level-number"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		from-src
+    Partial description	Delivery service identifier.
+    Full description	Identifier used to track the transmission path of the document throughout the delivery process.
+    
+    id			Unique identifier for the element.
+    src-name		The entity moving the document.
+    level-number	The position in the transmission path that the src-name occurred.
+  </a:documentation>
+
+  <define name="urgency">
+    <element name="urgency">
+      <ref name="attlist.urgency"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.urgency" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="ed-urg">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		urgency
+    Partial description	News importance.
+    Full description	Can be used to set the priority for distribution but does not set the actual distribution priority.
+    
+    id			Unique identifier for the element.
+    ed-urg		1=most, 5=normal, 8=least.
+  </a:documentation>
+
+  <define name="fixture">
+    <element name="fixture">
+      <ref name="attlist.fixture"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.fixture" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="fix-id"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		fixture
+    Partial description	Specification for named document, such as Heard on the Street or On Language.
+    Full description	Provides a consistent reference to a document whose content is refreshed periodically.
+    
+    id			Unique identifier for the element.
+    fix-id		The name of the fixture.
+  </a:documentation>
+
+  <define name="date.issue">
+    <element name="date.issue">
+      <ref name="attlist.date.issue"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.date.issue" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="norm"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		date.issue
+    Partial description	Date/time document was issued.
+    Full description	If not provided, it is assumed to be on receipt.
+    
+    id			Unique identifier for the element.
+    norm		Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available. Before the HHMM time, the - or + character may be used.
+  </a:documentation>
+
+  <define name="date.release">
+    <element name="date.release">
+      <ref name="attlist.date.release"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.date.release" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="norm"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		date.release
+    Partial description	Date/time document is available to be released.
+    Full description	If not provided, it is assumed to be on receipt.
+    
+    id			Unique identifier for the element.
+    norm		Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+  </a:documentation>
+
+  <define name="date.expire">
+    <element name="date.expire">
+      <ref name="attlist.date.expire"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.date.expire" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="norm"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		date.expire
+    Partial description	Date/time at which the document has no validity.
+    Full description	If not provided, it is assumed to be infinity.
+    
+    id			Unique identifier for the element.
+    norm		Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+  </a:documentation>
+
+  <define name="doc-scope">
+    <element name="doc-scope">
+      <ref name="attlist.doc-scope"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.doc-scope" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="scope"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		doc-scope
+    Partial description	Indicates an area where the document may be of interest.
+    Full description	Where a non-category interest may be specified. These are often geographic in origin, such as Pacific Northwest.
+    
+    id			Unique identifier for the element.
+    scope		Halfway between a Keyword and a Category.
+  </a:documentation>
+
+  <define name="series">
+    <element name="series">
+      <ref name="attlist.series"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.series" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="series.name"/>
+    </optional>
+    <optional>
+      <attribute name="series.part" a:defaultValue="0">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="series.totalpart" a:defaultValue="0">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		series
+    Partial description	Series information.
+    Full description	Identification of an article within a series of related articles.
+    
+    id			Unique identifier for the element.
+    series.name		The name of the series.
+    series.part		Numeric order of this article within the series.
+    series.totalpart	Total or expected number of articles in the series; use 0 if unknown or indefinite.
+  </a:documentation>
+
+  <define name="ed-msg">
+    <element name="ed-msg">
+      <ref name="attlist.ed-msg"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.ed-msg" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="msg-type"/>
+    </optional>
+    <optional>
+      <attribute name="info"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		ed-msg
+    Partial description	Non-publishable editorial message from provider or editor of item.
+    Full description	Place where an information provider can send a note to the editor about the contents of the story.
+    
+    id			Unique identifier for the element.
+    msg-type		The type of message. Providers are urged to use consistent values.
+    info		Contains the actual message for the editorial message.
+  </a:documentation>
+
+  <define name="du-key">
+    <element name="du-key">
+      <ref name="attlist.du-key"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.du-key" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="generation">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="part">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="version">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="key"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		du-key
+    Partial description	Dynamic Use Key, created daily. Has tree structure indicated by defined form.
+    Full description	Provides a mechanism for grouping and updating versions of stories. The du-key is unique to a story during a period fixed by the provider. After the time has elapsed, the reference is available for reuse.
+    
+    id			Unique identifier for the element.
+    generation		Number indicating the du-key generation level. This number increments with each instance of a story that uses the same du-key.
+    part		The part within the dynamic use key structure.
+    version		Version of a particular use of the dynamic-use key.
+    key			Contains the actual key value.
+  </a:documentation>
+
+  <define name="doc.copyright">
+    <element name="doc.copyright">
+      <ref name="attlist.doc.copyright"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.doc.copyright" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="year">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="holder"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		doc.copyright
+    Partial description	Copyright information for document header.
+    Full description	A metadata location for the information about the year and holder of the document copyright. This information should be consistant with information in the copyrite tag.
+    
+    id			Unique identifier for the element.
+    year		Year of the document copyright.
+    holder		Holder of the copyright.
+  </a:documentation>
+
+  <define name="doc.rights">
+    <element name="doc.rights">
+      <ref name="attlist.doc.rights"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.doc.rights" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="owner"/>
+    </optional>
+    <optional>
+      <attribute name="startdate"/>
+    </optional>
+    <optional>
+      <attribute name="enddate"/>
+    </optional>
+    <optional>
+      <attribute name="agent"/>
+    </optional>
+    <optional>
+      <attribute name="geography"/>
+    </optional>
+    <optional>
+      <attribute name="location-code"/>
+    </optional>
+    <optional>
+      <attribute name="code-source"/>
+    </optional>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="limitations"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		doc.rights
+    Partial description	Rights information for use of the document.
+    Full description	Used when the rights holder is not the same as the copyright holder. This information should be consistant with that in the series of rights tags.
+    
+    id			Unique identifier for the element.
+    owner		The owner of the specified rights.
+    startdate		For asserted rights. Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+    enddate		For specified document rights. Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+    agent		The rights agent.
+    geography		Geographic area where rights are asserted.
+    location-code	Coded location from standard list.
+    code-source		Source of coded list information.
+    type		Kind of rights being asserted.
+    limitations		Limitations associated with document rights.
+  </a:documentation>
+
+  <define name="key-list">
+    <element name="key-list">
+      <ref name="attlist.key-list"/>
+      <zeroOrMore>
+        <ref name="keyword"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.key-list" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		key-list
+    Partial description	List of keywords.
+    Full description	Holds a list of keywords about the document.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="keyword">
+    <element name="keyword">
+      <ref name="attlist.keyword"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.keyword" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="key"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		keyword
+    Partial description	Keyword. Can also be a phrase.
+    Full description	Holds the keyword or phrase itself.
+    
+    id			Unique identifier for the element.
+    key			The actual keyword.
+  </a:documentation>
+
+  <define name="identified-content">
+    <element name="identified-content">
+      <ref name="attlist.identified-content"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="person"/>
+          <ref name="org"/>
+          <ref name="location"/>
+          <ref name="event"/>
+          <ref name="function"/>
+          <ref name="object.title"/>
+          <ref name="virtloc"/>
+          <ref name="classifier"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.identified-content" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		identified-content
+    Partial description	Holds content identifiers that can apply to document as a whole.
+    Full description	The elements this holds also appear in paragraphs. Note that its children should be EMPTY
+    
+    id			Unique identifier for the element.
+   </a:documentation>
+
+  <define name="pubdata">
+    <element name="pubdata">
+      <ref name="attlist.pubdata"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.pubdata" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="type">
+        <choice>
+          <value>print</value>
+          <value>audio</value>
+          <value>video</value>
+          <value>web</value>
+          <value>appliance</value>
+          <value>other</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="item-length"/>
+    </optional>
+    <optional>
+      <attribute name="unit-of-measure">
+        <choice>
+          <value>word</value>
+          <value>character</value>
+          <value>byte</value>
+          <value>inch</value>
+          <value>pica</value>
+          <value>cm</value>
+          <value>hour</value>
+          <value>minute</value>
+          <value>second</value>
+          <value>other</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="date.publication"/>
+    </optional>
+    <optional>
+      <attribute name="name"/>
+    </optional>
+    <optional>
+      <attribute name="issn"/>
+    </optional>
+    <optional>
+      <attribute name="volume"/>
+    </optional>
+    <optional>
+      <attribute name="number"/>
+    </optional>
+    <optional>
+      <attribute name="issue"/>
+    </optional>
+    <optional>
+      <attribute name="edition.name"/>
+    </optional>
+    <optional>
+      <attribute name="edition.area"/>
+    </optional>
+    <optional>
+      <attribute name="position.section"/>
+    </optional>
+    <optional>
+      <attribute name="position.sequence"/>
+    </optional>
+    <optional>
+      <attribute name="ex-ref"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		pubdata
+    Partial description	Information about specific instance of an item's publication.
+    Full description	Contains metadata about how the particular news object was used in a specific instance.
+    
+    id			Unique identifier for the element.
+    type		Transport medium, such as print, streaming video or broadcast.
+    item-length		Length of the item; see also unit-of-measure.
+    unit-of-measure	Measure associated with the length of the item; see also item-length.
+    date.publication	For date object was used. Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+    name		Title of the publication.
+    issn		The International Standard Serial Number (ISSN) of the publication in which the news object occurred.
+    volume		Volume of the publication in which the information appeared.
+    number		Publication number, often associated with a volume number.
+    issue		The name of the issue of the publication where the news object occurred. Examples include June, fall, Olympic Special, year-end, etc.
+    edition.name	Name of the edition in which the news object was distributed.
+    edition.area	Area / zone where news object was distributed.
+    position.section	Named section of a publication where a news object appeared, such as Science, Sports, Weekend, etc.
+    position.sequence	Where a news object appeared among a list of items; often the page number.
+    ex-ref		External reference to the rendering of the news object as published, in the form of a URL or URN.
+  </a:documentation>
+
+  <define name="revision-history">
+    <element name="revision-history">
+      <ref name="attlist.revision-history"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.revision-history" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="name"/>
+    </optional>
+    <optional>
+      <attribute name="function">
+        <choice>
+          <value>writer-author</value>
+          <value>editor</value>
+          <value>producer</value>
+          <value>archivist</value>
+          <value>videographer</value>
+          <value>graphic-artist</value>
+          <value>photographer</value>
+          <value>statistician</value>
+          <value>other</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="norm"/>
+    </optional>
+    <optional>
+      <attribute name="comment"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		revision-history
+    Partial description	Information about the creative history of the document; also used as an audit trail.
+    Full description	Includes who made changes, when the changes were made, and why.
+    
+    id			Unique identifier for the element.
+    name		Name of the person who made the revision (usually editor or reporter).
+    function		Job function of individual performing revision.
+    norm		Date of the revision. Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+    comment		Reason for the revision.
+  </a:documentation>
+
+  <a:documentation>
+    ****************************************************************
+    body
+    ****************************************************************
+  </a:documentation>
+
+  <define name="body">
+    <element name="body">
+      <ref name="attlist.body"/>
+      <optional>
+        <ref name="body.head"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="body.content"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="body.end"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="attlist.body" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		body
+    Partial description	The content portion of the NITF document.
+    Full description	All items within body are meant for display to the user.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <a:documentation>
+    ****************************************************************
+    body.head
+    ****************************************************************
+  </a:documentation>
+
+  <define name="body.head">
+    <element name="body.head">
+      <ref name="attlist.body.head"/>
+      <optional>
+        <ref name="hedline"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="note"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="rights"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="byline"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="distributor"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="dateline"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="abstract"/>
+      </optional>
+      <optional>
+        <ref name="series"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="attlist.body.head" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		body.head
+    Partial description	Metadata intended to be displayed to the reader.
+    Full description	Holds content such as headline, byline, etc.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="hedline">
+    <element name="hedline">
+      <ref name="attlist.hedline"/>
+      <ref name="hl1"/>
+      <zeroOrMore>
+        <ref name="hl2"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.hedline" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		hedline
+    Partial description	Container for main headline and subheadlines.
+    Full description	Provides a generally-dependable component for display in search results.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="hl1">
+    <element name="hl1">
+      <ref name="attlist.hl1"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.hl1" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		hl1
+    Partial description	Headline 1 (main-headline).
+    Full description	The primary headline of the story.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="hl2">
+    <element name="hl2">
+      <ref name="attlist.hl2"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.hl2" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		hl2
+    Partial description	Headline 2 (sub-headline)
+    Full description	A subordinate headline for the article.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="note">
+    <element name="note">
+      <ref name="attlist.note"/>
+      <oneOrMore>
+        <ref name="body.content"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.note" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="noteclass">
+        <choice>
+          <value>cpyrt</value>
+          <value>end</value>
+          <value>hd</value>
+          <value>editorsnote</value>
+          <value>trademk</value>
+          <value>undef</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="type" a:defaultValue="std">
+        <choice>
+          <value>std</value>
+          <value>pa</value>
+          <value>npa</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		note
+    Partial description	Document cautionary note.
+    Full description	Potentially publishable.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    noteclass		The class of note. Copyright, endnote, etc. (Controlled vocabulary.)
+    type		Standards, Publishable Advisory, Non-Publishable Advisory.
+  </a:documentation>
+
+  <define name="rights">
+    <element name="rights">
+      <ref name="attlist.rights"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="rights.owner"/>
+          <ref name="rights.startdate"/>
+          <ref name="rights.enddate"/>
+          <ref name="rights.agent"/>
+          <ref name="rights.geography"/>
+          <ref name="rights.type"/>
+          <ref name="rights.limitations"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.rights" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		rights
+    Partial description	Information on rights holder.
+    Full description	Rights to news material other than the copyrights, such as archival, syndication, or distribution.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="rights.owner">
+    <element name="rights.owner">
+      <ref name="attlist.rights.owner"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.rights.owner" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="contact"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		rights.owner
+    Partial description	Rights owner
+    Full description	Owner of the rights to the material.
+    
+    id			Unique identifier for the element.
+    contact		Contact information for the owner.
+  </a:documentation>
+
+  <define name="rights.startdate">
+    <element name="rights.startdate">
+      <ref name="attlist.rights.startdate"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.rights.startdate" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="norm"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		rights.startdate
+    Partial description	Rights start date.
+    Full description	Initial reference date for material rights.
+    
+    id			Unique identifier for the element.
+    norm		Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+  </a:documentation>
+
+  <define name="rights.enddate">
+    <element name="rights.enddate">
+      <ref name="attlist.rights.enddate"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.rights.enddate" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="norm"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		rights.enddate
+    Partial description	Rights end date.
+    Full description	Terminal reference date for material rights.
+    
+    id			Unique identifier for the element.
+    norm		Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+  </a:documentation>
+
+  <define name="rights.agent">
+    <element name="rights.agent">
+      <ref name="attlist.rights.agent"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.rights.agent" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="contact"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		rights.agent
+    Partial description	Rights agent.
+    Full description	Name of the agent that holds the rights to the material.
+    
+    id			Unique identifier for the element.
+    contact		Contact information for the agent.
+  </a:documentation>
+
+  <define name="rights.geography">
+    <element name="rights.geography">
+      <ref name="attlist.rights.geography"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.rights.geography" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="location-code"/>
+    </optional>
+    <optional>
+      <attribute name="code-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		rights.geography
+    Partial description	Area to which rights apply.
+    Full description	A geographic area.
+    
+    id			Unique identifier for the element.
+    location-code	Coded location from standard list.
+    code-source		Source for the location code.
+  </a:documentation>
+
+  <define name="rights.type">
+    <element name="rights.type">
+      <ref name="attlist.rights.type"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.rights.type" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		rights.type
+    Partial description	Type of rights claimed.
+    Full description	Type of material rights claimed (such as distribution).
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="rights.limitations">
+    <element name="rights.limitations">
+      <ref name="attlist.rights.limitations"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.rights.limitations" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		rights.limitations
+    Partial description	Limitations (exclusive / nonexclusive) of rights.
+    Full description	Limitation on use of material rights.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="byline">
+    <element name="byline">
+      <ref name="attlist.byline"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="person"/>
+          <ref name="byttl"/>
+          <ref name="location"/>
+          <ref name="virtloc"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.byline" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		byline
+    Partial description	Container for byline information.
+    Full description	Can either be structured with direct specification of the responsible person / entity and their title or unstructured text can be provided.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="byttl">
+    <element name="byttl">
+      <ref name="attlist.byttl"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="org"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.byttl" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		byttl
+    Partial description	Byline title. Often contains an organization.
+    Full description	Title of the person, or entity associated with the byline and a specified person.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="distributor">
+    <element name="distributor">
+      <ref name="attlist.distributor"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="org"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.distributor" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		distributor
+    Partial description	Information distributor.
+    Full description	May or may not be the owner or creator.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="dateline">
+    <element name="dateline">
+      <ref name="attlist.dateline"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="location"/>
+          <ref name="story.date"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.dateline" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		dateline
+    Partial description	Container for dateline information.
+    Full description	The date and location where the story was created.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="story.date">
+    <element name="story.date">
+      <ref name="attlist.story.date"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.story.date" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="norm"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		story.date
+    Partial description	Date of story.
+    Full description	Printable date. 
+    
+    id			Unique identifier for the element.
+    norm		Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+  </a:documentation>
+
+  <define name="abstract">
+    <element name="abstract">
+      <ref name="attlist.abstract"/>
+      <oneOrMore>
+        <ref name="block.content"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.abstract" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		abstract
+    Partial description	Story abstract
+    Full description	summary or synopsis of the contents of the document.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <a:documentation>
+  series: also allowed here
+  </a:documentation>
+
+  <define name="copyrite">
+    <element name="copyrite">
+      <ref name="attlist.copyrite"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="copyrite.year"/>
+          <ref name="copyrite.holder"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.copyrite" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		copyrite
+    Partial description	Container for copyright information.
+    Full description	A displayable statement about who owns the copyright to the article.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="copyrite.year">
+    <element name="copyrite.year">
+      <ref name="attlist.copyrite.year"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.copyrite.year" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		copyrite.year
+    Partial description	Copyright year
+    Full description	The year the copyright ownership was established.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="copyrite.holder">
+    <element name="copyrite.holder">
+      <ref name="attlist.copyrite.holder"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.copyrite.holder" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		copyrite.holder
+    Partial description	Copyright holder.
+    Full description	The name of the holder of the copyright.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <a:documentation>
+    ****************************************************************
+    body.content
+    found within body, note, and fn (footnote) elements
+    ****************************************************************
+  </a:documentation>
+
+  <define name="body.content">
+    <element name="body.content">
+      <ref name="attlist.body.content"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="block"/>
+          <ref name="block.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.body.content" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		body.content
+    Partial description	Actual body content.
+    Full description	Holds paragraphs, lists, tables, media, and other containers.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="block">
+    <element name="block">
+      <ref name="attlist.block"/>
+      <optional>
+        <ref name="block.start"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="block.content"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="block.end"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="attlist.block" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		block
+    Partial description	A group of related containers.
+    Full description	This container can be used to organize a set of related containers, such as a sidebar.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="p">
+    <element name="p">
+      <ref name="attlist.p"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.p" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="lede">
+        <ref name="boolean"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="summary">
+        <ref name="boolean"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="optional-text">
+        <ref name="boolean"/>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		p
+    Partial description	Paragraph.
+    Full description	An organized set of sentences.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    lede		Indicates that the paragraph is the lead paragraph(s) to the news object.
+    summary		Indicates that the associated paragraphs form a summary.
+    optional-text	Indicates that the paragraph could be considered optional.
+  </a:documentation>
+
+  <a:documentation>
+  hl2 is a block.content member
+  </a:documentation>
+
+  <define name="table">
+    <element name="table">
+      <ref name="attlist.table"/>
+      <optional>
+        <ref name="caption"/>
+      </optional>
+      <choice>
+        <zeroOrMore>
+          <ref name="col"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="colgroup"/>
+        </zeroOrMore>
+      </choice>
+      <optional>
+        <ref name="thead"/>
+      </optional>
+      <optional>
+        <ref name="tfoot"/>
+      </optional>
+      <choice>
+        <oneOrMore>
+          <ref name="tbody"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="tr"/>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+
+  <define name="attlist.table" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="tabletype">
+        <data type="ENTITY"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>center</value>
+          <value>right</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="width"/>
+    </optional>
+    <optional>
+      <attribute name="cols">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="border"/>
+    </optional>
+    <optional>
+      <attribute name="frame">
+        <choice>
+          <value>void</value>
+          <value>above</value>
+          <value>below</value>
+          <value>hsides</value>
+          <value>lhs</value>
+          <value>rhs</value>
+          <value>vsides</value>
+          <value>box</value>
+          <value>border</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rules">
+        <choice>
+          <value>none</value>
+          <value>basic</value>
+          <value>rows</value>
+          <value>cols</value>
+          <value>all</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="cellspacing"/>
+    </optional>
+    <optional>
+      <attribute name="cellpadding"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		table
+    Partial description	Table of data.
+    Full description	Form is like the form of HTML tables.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    tabletype		Holds style information.
+    align		Where the table should appear with respect to surrounding text. (Controlled vocabulary.)
+    width		Width of the table, in pixels.
+    cols		Number of columns in the table.
+    border		Describes how the border (if any) should be rendered.
+    frame		Specification of which parts of the frame around the table should be rendered.
+    rules		Indicates the use of rules/lines between rows and columns.
+    cellspacing		A measurement of the number of pixels between cells.
+    cellpadding		A measurement of the number of pixels between a cell's border and its text.
+  </a:documentation>
+
+  <define name="media">
+    <element name="media">
+      <ref name="attlist.media"/>
+      <zeroOrMore>
+        <ref name="media-metadata"/>
+      </zeroOrMore>
+      <oneOrMore>
+        <ref name="media-reference"/>
+        <optional>
+          <ref name="media-object"/>
+        </optional>
+      </oneOrMore>
+      <zeroOrMore>
+        <ref name="media-caption"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="media-producer"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="attlist.media" combine="interleave">
+    <ref name="common-attributes"/>
+    <attribute name="media-type"/>
+  </define>
+
+  <a:documentation>
+    Element		media
+    Partial description	Generalized media object.
+    Full description	Used to package up a reference to an image, audio, video, etc. with its caption and credit.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    
+    media-type		text | audio | image | video | data | application | other (Controlled vocabulary.)
+  </a:documentation>
+
+  <define name="media-reference">
+    <element name="media-reference">
+      <ref name="attlist.media-reference"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.media-reference" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="source"/>
+    </optional>
+    <optional>
+      <attribute name="name"/>
+    </optional>
+    <optional>
+      <attribute name="mime-type"/>
+    </optional>
+    <optional>
+      <attribute name="coding"/>
+    </optional>
+    <optional>
+      <attribute name="time"/>
+    </optional>
+    <optional>
+      <attribute name="time-unit-of-measure"/>
+    </optional>
+    <optional>
+      <attribute name="outcue"/>
+    </optional>
+    <optional>
+      <attribute name="source-credit"/>
+    </optional>
+    <optional>
+      <attribute name="copyright"/>
+    </optional>
+    <optional>
+      <attribute name="alternate-text"/>
+    </optional>
+    <optional>
+      <attribute name="height">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="width">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="units">
+        <choice>
+          <value>pixels</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="imagemap"/>
+    </optional>
+    <optional>
+      <attribute name="noflow">
+        <choice>
+          <value>noflow</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		media-reference
+    Partial description	Reference to an external media object, OR to its following media-object.
+    Full description	Points to any object, such as photo, audio, video and text; or to executable files.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    source		URL for external media file.
+    name		Alternate name or description of the object.
+    mime-type		Mime-type for the external media file.
+    coding		How the information is coded.
+    time		Length of time that the media file plays.
+    time-unit-of-measure	Units in which the time attribute is measured.
+    outcue		Provides information about the spoken information that ends an audio clip.
+    source-credit	Indicates the source of the information.
+    copyright		Copyright owner.
+    alternate-text	Plain-text description that can serve as a substitute for the media object.
+    height		Height of the media object.
+    width		Width of the media object.
+    units		Units used for width and height. Default is pixels.
+    imagemap		Indication for whether the media object has an affiliated imagemap.
+    noflow		Indicates if information can flow around figure.
+  </a:documentation>
+
+  <define name="media-metadata">
+    <element name="media-metadata">
+      <ref name="attlist.media-metadata"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.media-metadata" combine="interleave">
+    <ref name="global-attributes"/>
+    <attribute name="name"/>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		media-metadata
+    Partial description	Generic metadata placeholder.
+    Full description	Used when the attributes of media-reference do not suffice.
+    
+    id			Unique identifier for the element.
+    name		Name of the metadata item.
+    value		Value of the metadata item.
+  </a:documentation>
+
+  <define name="media-object">
+    <element name="media-object">
+      <ref name="attlist.media-object"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.media-object" combine="interleave">
+    <ref name="common-attributes"/>
+    <attribute name="encoding"/>
+  </define>
+
+  <a:documentation>
+    Element		media-object
+    Partial description	Inline media data.
+    Full description	Holds binary information, or some other encoded format.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    encoding		Format the encoded data is in.
+  </a:documentation>
+
+  <define name="media-caption">
+    <element name="media-caption">
+      <ref name="attlist.media-caption"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="enriched-text"/>
+          <ref name="block.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.media-caption" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		media-caption
+    Partial description	Text describing media.
+    Full description	Often rendered beneath a photo or video.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="media-producer">
+    <element name="media-producer">
+      <ref name="attlist.media-producer"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.media-producer" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		media-producer
+    Partial description	Byline of media producer.
+    Full description	Also used as a credit for the media.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="ol">
+    <element name="ol">
+      <ref name="attlist.ol"/>
+      <oneOrMore>
+        <ref name="li"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.ol" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="seqnum">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		ol
+    Partial description	Ordered list.
+    Full description	Holds list items.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    seqnum		Sequence number within an ordered list.
+  </a:documentation>
+
+  <define name="ul">
+    <element name="ul">
+      <ref name="attlist.ul"/>
+      <oneOrMore>
+        <ref name="li"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.ul" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		ul
+    Partial description	Unordered list.
+    Full description	Holds list items.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="li">
+    <element name="li">
+      <ref name="attlist.li"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="enriched-text"/>
+          <ref name="block.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.li" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		li
+    Partial description	List item.
+    Full description	Holds content that is presented within a list.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="dl">
+    <element name="dl">
+      <ref name="attlist.dl"/>
+      <oneOrMore>
+        <choice>
+          <ref name="dt"/>
+          <ref name="dd"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.dl" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		dl
+    Partial description	Definition list.
+    Full description	Holds terms and their definitions.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="dt">
+    <element name="dt">
+      <ref name="attlist.dt"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.dt" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		dt
+    Partial description	Definition term.
+    Full description	Holds the content that is to be defined.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="dd">
+    <element name="dd">
+      <ref name="attlist.dd"/>
+      <zeroOrMore>
+        <ref name="block"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.dd" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		dd
+    Partial description	Definition data.
+    Full description	Holds the definition of the term.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="bq">
+    <element name="bq">
+      <ref name="attlist.bq"/>
+      <zeroOrMore>
+        <oneOrMore>
+          <ref name="block"/>
+        </oneOrMore>
+        <optional>
+          <ref name="credit"/>
+        </optional>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.bq" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="nowrap">
+        <choice>
+          <value>nowrap</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="quote-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		bq
+    Partial description	Block quote.
+    Full description	An extended quotation.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    nowrap		Directive not to wrap text in the cell.
+    quote-source	Source of a quote.
+  </a:documentation>
+
+  <define name="credit">
+    <element name="credit">
+      <ref name="attlist.credit"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.credit" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		credit
+    Partial description	Names the source of the block quote.
+    Full description	Provides attribution for a block quote.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="fn">
+    <element name="fn">
+      <ref name="attlist.fn"/>
+      <oneOrMore>
+        <ref name="body.content"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.fn" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		fn
+    Partial description	Footnote.
+    Full description	Notes that are often rendered at the end of a document.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <a:documentation>
+  note is a block.content member
+  </a:documentation>
+
+  <define name="pre">
+    <element name="pre">
+      <ref name="attlist.pre"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.pre" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		pre
+    Partial description	Preformatted information.
+    Full description	Carriage returns and fixed-width spacing should be maintained.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="hr">
+    <element name="hr">
+      <ref name="attlist.hr"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.hr" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		hr
+    Partial description	Horizontal rule.
+    Full description	A rendered divider between sections of text.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="datasource">
+    <element name="datasource">
+      <ref name="attlist.datasource"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.datasource" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		datasource
+    Partial description	Source of the information grouped in a block element.
+    Full description	Cites the source of block content. Allowed only at end of block.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <a:documentation>
+    ****************************************************************
+    table elements
+    ****************************************************************
+  </a:documentation>
+
+  <define name="caption">
+    <element name="caption">
+      <ref name="attlist.caption"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="enriched-text"/>
+          <ref name="block.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.caption" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>top</value>
+          <value>bottom</value>
+          <value>left</value>
+          <value>right</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		caption
+    Partial description	Text for the caption of a table.
+    Full description	Appears only within the table element.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    align		Alignment of the text in the caption.
+  </a:documentation>
+
+  <define name="col">
+    <element name="col">
+      <ref name="attlist.col"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.col" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="span" a:defaultValue="1">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="width"/>
+    </optional>
+    <ref name="cell.align"/>
+    <ref name="cell.valign"/>
+  </define>
+
+  <a:documentation>
+    Element		col
+    Partial description	Column.
+    Full description	Used to specify formatting for a table column.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    span		Number of columns a header cell spans.
+    width		Width of the column, in pixels.
+    align		Alignment of text in the column.
+    char		Specifies a single character within a text fragment to act as the axis for text alignment. Default varies by language; for example, default for en-US is period (.).
+    charoff		Specifies the offset to the first occurance of the character specified in char. !!
+    valign		Vertical alignment of text in the column.
+  </a:documentation>
+
+  <define name="colgroup">
+    <element name="colgroup">
+      <ref name="attlist.colgroup"/>
+      <oneOrMore>
+        <ref name="col"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.colgroup" combine="interleave">
+    <ref name="common-attributes"/>
+    <ref name="cell.align"/>
+    <ref name="cell.valign"/>
+  </define>
+
+  <a:documentation>
+    Element		colgroup
+    Partial description	Column group.
+    Full description	Used to specify formatting for a table column.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    align		Alignment of text in the column group.
+    char		HTML formatting attribute.
+    charoff		HTML formatting attribute.
+    valign		Vertical alignment of text in the column group.
+  </a:documentation>
+
+  <define name="thead">
+    <element name="thead">
+      <ref name="attlist.thead"/>
+      <oneOrMore>
+        <ref name="tr"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.thead" combine="interleave">
+    <ref name="common-attributes"/>
+    <ref name="cell.align"/>
+    <ref name="cell.valign"/>
+  </define>
+
+  <a:documentation>
+    Element		thead
+    Partial description	Table heading.
+    Full description	Used to group rows that can consistently be displayed atop a table.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    align		Alignment of text in the column group.
+    char		HTML formatting attribute.
+    charoff		HTML formatting attribute.
+    valign		Vertical alignment of text in the column group.
+  </a:documentation>
+
+  <define name="tbody">
+    <element name="tbody">
+      <ref name="attlist.tbody"/>
+      <oneOrMore>
+        <ref name="tr"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.tbody" combine="interleave">
+    <ref name="common-attributes"/>
+    <ref name="cell.align"/>
+    <ref name="cell.valign"/>
+  </define>
+
+  <a:documentation>
+    Element		tbody
+    Partial description	Table body.
+    Full description	Holds the bulk of the data rows of a table.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    align		Alignment of text in the column group.
+    char		HTML formatting attribute.
+    charoff		HTML formatting attribute.
+    valign		Vertical alignment of text in the column group.
+  </a:documentation>
+
+  <define name="tfoot">
+    <element name="tfoot">
+      <ref name="attlist.tfoot"/>
+      <oneOrMore>
+        <ref name="tr"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.tfoot" combine="interleave">
+    <ref name="common-attributes"/>
+    <ref name="cell.align"/>
+    <ref name="cell.valign"/>
+  </define>
+
+  <a:documentation>
+    Element		tfoot
+    Partial description	Table footer.
+    Full description	Used to group rows that can consistently be displayed below a table.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    align		Alignment of text in the column group.
+    char		HTML formatting attribute.
+    charoff		HTML formatting attribute.
+    valign		Vertical alignment of text in the column group.
+  </a:documentation>
+
+  <define name="tr">
+    <element name="tr">
+      <ref name="attlist.tr"/>
+      <oneOrMore>
+        <choice>
+          <ref name="th"/>
+          <ref name="td"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.tr" combine="interleave">
+    <ref name="common-attributes"/>
+    <ref name="cell.align"/>
+    <ref name="cell.valign"/>
+  </define>
+
+  <a:documentation>
+    Element		tr
+    Partial description	Table row.
+    Full description	Holds cells of a table.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    align		Alignment of text in the column group.
+    char		HTML formatting attribute.
+    charoff		HTML formatting attribute.
+    valign		Vertical alignment of text in the column group.
+  </a:documentation>
+
+  <define name="th">
+    <element name="th">
+      <ref name="attlist.th"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="enriched-text"/>
+          <ref name="block.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.th" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="axis"/>
+    </optional>
+    <optional>
+      <attribute name="axes"/>
+    </optional>
+    <optional>
+      <attribute name="nowrap">
+        <choice>
+          <value>nowrap</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowspan">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="colspan">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <ref name="cell.align"/>
+    <ref name="cell.valign"/>
+  </define>
+
+  <a:documentation>
+    Element		th
+    Partial description	Table header cell.
+    Full description	Holds content intended to be a label.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    axis		HTML formatting attribute.
+    axes		HTML formatting attribute.
+    nowrap		Directive not to wrap text in the cell.
+    rowspan		Number of horizontal rows a cell spans.
+    colspan		Number of vertical columns a cell spans.
+    align		Alignment of text in the column group.
+    char		HTML formatting attribute.
+    charoff		HTML formatting attribute.
+    valign		Vertical alignment of text in the column group.
+  </a:documentation>
+
+  <define name="td">
+    <element name="td">
+      <ref name="attlist.td"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="enriched-text"/>
+          <ref name="block.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.td" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="axis"/>
+    </optional>
+    <optional>
+      <attribute name="axes"/>
+    </optional>
+    <optional>
+      <attribute name="nowrap">
+        <choice>
+          <value>nowrap</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowspan">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="colspan">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <ref name="cell.align"/>
+    <ref name="cell.valign"/>
+  </define>
+
+  <a:documentation>
+    Element		td
+    Partial description	Table data cell.
+    Full description	Holds content intended to be data.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    axis		HTML formatting attribute.
+    axes		HTML formatting attribute.
+    nowrap		Directive not to wrap text in the cell.
+    rowspan		Number of horizontal rows a cell spans.
+    colspan		Number of vertical columns a cell spans.
+    align		Alignment of text in the column group.
+    char		HTML formatting attribute.
+    charoff		HTML formatting attribute.
+    valign		Vertical alignment of text in the column group.
+  </a:documentation>
+
+  <a:documentation>
+    ****************************************************************
+    text elements
+    	chron | copyrite | event | function | location | money | num
+    	| object.title | org | person | postaddr | virtloc | a | br
+    	| em | lang | pronounce | q
+    ****************************************************************
+  </a:documentation>
+
+  <define name="chron">
+    <element name="chron">
+      <ref name="attlist.chron"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.chron" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="norm"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		chron
+    Partial description	Date and time.
+    Full description	Used to normalize inline date and time references.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    norm		Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+  </a:documentation>
+
+  <a:documentation>
+  copyrite allowed here, also
+  </a:documentation>
+
+  <define name="event">
+    <element name="event">
+      <ref name="attlist.event"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.event" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="start-date"/>
+    </optional>
+    <optional>
+      <attribute name="end-date"/>
+    </optional>
+    <optional>
+      <attribute name="idsrc"/>
+    </optional>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		event
+    Partial description	An event.
+    Full description	An activity that is considered newsworthy.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    start-date		When the event is set to start. Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+    end-date		When the event is set to end. Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+    idsrc		The source (taxonomy) for the element's value attribute.
+    value		The code or symbol for the element.
+  </a:documentation>
+
+  <define name="function">
+    <element name="function">
+      <ref name="attlist.function"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.function" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="idsrc"/>
+    </optional>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		function
+    Partial description	Role played by a person.
+    Full description	Can be either a description, such as interior decorator, or a formal title, such as president, chairman, owner, captain, manager.
+    
+    id			Unique identifier for the element.
+    idsrc		The source (taxonomy) for the element's value attribute.
+    value		The code or symbol for the element.
+  </a:documentation>
+
+  <define name="location">
+    <element name="location">
+      <ref name="attlist.location"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="sublocation"/>
+          <ref name="city"/>
+          <ref name="state"/>
+          <ref name="region"/>
+          <ref name="country"/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.location" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="location-code"/>
+    </optional>
+    <optional>
+      <attribute name="code-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		location
+    Partial description	Significant place mentioned in an article.
+    Full description	Used to normalize locations.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    location-code	The code or symbol for the element.
+    code-source		The source (taxonomy) for the element's location-code.
+  </a:documentation>
+
+  <define name="sublocation">
+    <element name="sublocation">
+      <ref name="attlist.sublocation"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.sublocation" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="location-code"/>
+    </optional>
+    <optional>
+      <attribute name="code-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		sublocation
+    Partial description	Named region within city or state.
+    Full description	Generic holder for more detailed location information.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    location-code	The code or symbol for the element.
+    code-source		The source (taxonomy) for the element's location-code.
+  </a:documentation>
+
+
+  <define name="city">
+    <element name="city">
+      <ref name="attlist.city"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.city" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="city-code"/>
+    </optional>
+    <optional>
+      <attribute name="code-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		city
+    Partial description	City, town, village, etc.
+    Full description	Used to normalize city, town names.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    city-code		The code or symbol for the element.
+    code-source		The source (taxonomy) for the element's city-code.
+  </a:documentation>
+
+  <define name="state">
+    <element name="state">
+      <ref name="attlist.state"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.state" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="state-code"/>
+    </optional>
+    <optional>
+      <attribute name="code-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		state
+    Partial description	State or province or region.
+    Full description	Used to normalize these locations.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    state-code		The code or symbol for the element.
+    code-source		The source (taxonomy) for the element's state-code.
+  </a:documentation>
+
+  <define name="region">
+    <element name="region">
+      <ref name="attlist.region"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.region" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="region-code"/>
+    </optional>
+    <optional>
+      <attribute name="code-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		region
+    Partial description	Geographic area.
+    Full description	Used to normalize regions.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    region-code		The code or symbol for the element.
+    code-source		The source (taxonomy) for the element's region-code.
+  </a:documentation>
+
+  <define name="country">
+    <element name="country">
+      <ref name="attlist.country"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.country" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="iso-cc"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		country
+    Partial description	Geographic area with a government.
+    Full description	Used to normalize countries.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    iso-cc		Country code as specified in ISO 3166.
+  </a:documentation>
+
+  <define name="money">
+    <element name="money">
+      <ref name="attlist.money"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.money" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="unit"/>
+    </optional>
+    <optional>
+      <attribute name="date"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		money
+    Partial description	Monetary item.
+    Full description	Used to identify units of money.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    unit		The currency used.
+    date		Date when this currency value was quoted. Date/time value normalized to ISO 8601: YYYYMMDDTHHMMSS-HHMM (preferred) YYYYMMDDTHHMMSSZ (alternative). Use YYYYMMDD000000-HHMM when no time is available
+  </a:documentation>
+
+  <define name="num">
+    <element name="num">
+      <ref name="attlist.num"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="frac"/>
+          <ref name="sub"/>
+          <ref name="sup"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.num" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="units"/>
+    </optional>
+    <optional>
+      <attribute name="decimal-ch"/>
+    </optional>
+    <optional>
+      <attribute name="thousands-ch"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		num
+    Partial description	Numeric data.
+    Full description	Used to normalize numbers.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    units		Units the number is in.
+    decimal-ch		Character used to separate decimalized portion.
+    thousands-ch	Character to separate thousands groups.
+  </a:documentation>
+
+  <define name="frac">
+    <element name="frac">
+      <ref name="attlist.frac"/>
+      <ref name="numer"/>
+      <optional>
+        <ref name="frac-sep"/>
+      </optional>
+      <ref name="denom"/>
+    </element>
+  </define>
+
+  <define name="attlist.frac" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		frac
+    Partial description	Fraction.
+    Full description	Separates the numerator from the denominator.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="numer">
+    <element name="numer">
+      <ref name="attlist.numer"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.numer" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		numer
+    Partial description	Fraction numerator.
+    Full description	The top part of a fraction.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="frac-sep">
+    <element name="frac-sep">
+      <ref name="attlist.frac-sep"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.frac-sep" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		frac-sep
+    Partial description	Fraction separator.
+    Full description	Holds the preferred character, normally a slash.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="denom">
+    <element name="denom">
+      <ref name="attlist.denom"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.denom" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		denom
+    Partial description	Fraction denominator.
+    Full description	The bottom part of a fraction.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="sub">
+    <element name="sub">
+      <ref name="attlist.sub"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.sub" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		sub
+    Partial description	Subscript.
+    Full description	Generally rendered in small type and vertically aligned lower than the main text.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="sup">
+    <element name="sup">
+      <ref name="attlist.sup"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.sup" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		sup
+    Partial description	Superscript.
+    Full description	Generally rendered in small type and vertically aligned higher than the main text.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="object.title">
+    <element name="object.title">
+      <ref name="attlist.object.title"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.object.title" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="idsrc"/>
+    </optional>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		object.title
+    Partial description	Title of inline object such as book, song, artwork, etc.
+    Full description	Used to normalize these values.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    idsrc		The source (taxonomy) for the element's value.
+    value		The code or symbol for the element.
+  </a:documentation>
+
+  <define name="org">
+    <element name="org">
+      <ref name="attlist.org"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.org" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="idsrc"/>
+    </optional>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		org
+    Partial description	Organization.
+    Full description	Used for companies (both private and public) and non-profits.
+    
+    id			Unique identifier for the element.
+    idsrc		The source (taxonomy) for the element's value.
+    value		The code or symbol for the element.
+  </a:documentation>
+
+  <define name="alt-code">
+    <element name="alt-code">
+      <ref name="attlist.alt-code"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.alt-code" combine="interleave">
+    <ref name="global-attributes"/>
+    <attribute name="idsrc"/>
+    <attribute name="value"/>
+  </define>
+
+  <a:documentation>
+    Element		alt-code
+    Partial description	An alternate symbol for the phrase.
+    Full description	Used when an item has more than one symbol behind it.
+    
+    id			Unique identifier for the element.
+    idsrc		The source (taxonomy) for the element's value.
+    value		An alternate code or symbol for the element.
+  </a:documentation>
+
+  <define name="person">
+    <element name="person">
+      <ref name="attlist.person"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="name.given"/>
+          <ref name="name.family"/>
+          <ref name="function"/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.person" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="idsrc"/>
+    </optional>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+    <optional>
+      <attribute name="gender">
+        <choice>
+          <value>male</value>
+          <value>female</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		person
+    Partial description	Human individual.
+    Full description	Used to normalize people.
+    
+    id			Unique identifier for the element.
+    idsrc		The source (taxonomy) for the element's value.
+    value		The code or symbol for the element.
+    gender		either male or female
+  </a:documentation>
+
+  <define name="name.given">
+    <element name="name.given">
+      <ref name="attlist.name.given"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.name.given" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		name.given
+    Partial description	Given name.
+    Full description	In the U.S., the first name of an individual.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="name.family">
+    <element name="name.family">
+      <ref name="attlist.name.family"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.name.family" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		name.family
+    Partial description	Family name.
+    Full description	In the U.S., the last name of an individual.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="postaddr">
+    <element name="postaddr">
+      <ref name="attlist.postaddr"/>
+      <ref name="addressee"/>
+      <optional>
+        <ref name="delivery.point"/>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="postcode"/>
+          <ref name="delivery.office"/>
+          <ref name="region"/>
+          <ref name="country"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.postaddr" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		postaddr
+    Partial description	Mailing address.
+    Full description	Used to deliver mail.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="virtloc">
+    <element name="virtloc">
+      <ref name="attlist.virtloc"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.virtloc" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="idsrc"/>
+    </optional>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		virtloc
+    Partial description	Virtual Location.
+    Full description	A location in cyberspace.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    idsrc		The source (taxonomy) for the element's value attribute.
+    value		The code or symbol for the element.
+  </a:documentation>
+
+  <define name="a">
+    <element name="a">
+      <ref name="attlist.a"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.a" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="href">
+        <data type="anyURI"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="name"/>
+    </optional>
+    <optional>
+      <attribute name="rel">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rev">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="title"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		a
+    Partial description	Anchor for hypertext links.
+    Full description	Allows users to traverse to other documents.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    href		URL for where the hypertext anchor leads.
+    name		Alternate name or description of the link, such as Link to News Item.
+    rel			Specifies the relationship from the source to the target.
+    rev			Specifies the relationship from the target to the source.
+    title		Title for the document to be linked to.
+  </a:documentation>
+
+  <define name="br">
+    <element name="br">
+      <ref name="attlist.br"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.br" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		br
+    Partial description	Forced line break.
+    Full description	Often used within headlines.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="em">
+    <element name="em">
+      <ref name="attlist.em"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.em" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		em
+    Partial description	Emphasis.
+    Full description	Can be rendered as bold, italics, or another style.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="lang">
+    <element name="lang">
+      <ref name="attlist.lang"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.lang" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		lang
+    Partial description	Language identifier.
+    Full description	Used to separate inline changes of language.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="pronounce">
+    <element name="pronounce">
+      <ref name="attlist.pronounce"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.pronounce" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="guide"/>
+    </optional>
+    <optional>
+      <attribute name="phonetic"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		pronounce
+    Partial description	Pronunciation Information.
+    Full description	Used to elaborate on how a term is spoken.
+    
+    id			Unique identifier for the element.
+    guide		Source used to create pronunciation.
+    phonetic		Phonetic pronunciation of an phrase.
+  </a:documentation>
+
+  <define name="q">
+    <element name="q">
+      <ref name="attlist.q"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.q" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="quote-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		q
+    Partial description	Quotation.
+    Full description	Words directly attributed to an individual.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    quote-source	Who said or wrote the quotation.
+  </a:documentation>
+
+  <a:documentation>
+    ****************************************************************
+    postaddr elements
+    addressee, delivery.point?, (postcode | delivery.office | region | country
+    ****************************************************************
+  </a:documentation>
+
+  <define name="addressee">
+    <element name="addressee">
+      <ref name="attlist.addressee"/>
+      <ref name="person"/>
+      <optional>
+        <ref name="function"/>
+      </optional>
+      <optional>
+        <ref name="care.of"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="attlist.addressee" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		addressee
+    Partial description	Person or organization to whom the postal item is being sent.
+    Full description	Used in a postal address.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="care.of">
+    <element name="care.of">
+      <ref name="attlist.care.of"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.care.of" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		care.of
+    Partial description	Poste restante.
+    Full description	An alternative receiver of the postal item.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="delivery.point">
+    <element name="delivery.point">
+      <ref name="attlist.delivery.point"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="br"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.delivery.point" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="point-code"/>
+    </optional>
+    <optional>
+      <attribute name="code-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		delivery.point
+    Partial description	Street, PO Box No.
+    Full description	Precise point of delivery.
+    
+    id			Unique identifier for the element.
+    point-code		Coded location for a delivery point.
+    code-source		Source of coded list information.
+  </a:documentation>
+
+  <define name="postcode">
+    <element name="postcode">
+      <ref name="attlist.postcode"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.postcode" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="code-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		postcode
+    Partial description	Postal code.
+    Full description	Used by postal agency to improve delivery efficiency.
+    
+    id			Unique identifier for the element.
+    code-source		Source of coded list information.
+  </a:documentation>
+
+  <define name="delivery.office">
+    <element name="delivery.office">
+      <ref name="attlist.delivery.office"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="br"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.delivery.office" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="office-code"/>
+    </optional>
+    <optional>
+      <attribute name="code-source"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		delivery.office
+    Partial description	Postal city or town.
+    Full description	Where the post office is located.
+    
+    id			Unique identifier for the element.
+    office-code		Coded location of office from referenced coded source.
+    code-source		Source of coded list information.
+  </a:documentation>
+
+  <a:documentation>
+  region also allowed
+  country also allowed
+  </a:documentation>
+
+  <a:documentation>
+    ****************************************************************
+    body.end
+    ****************************************************************
+  </a:documentation>
+
+  <define name="body.end">
+    <element name="body.end">
+      <ref name="attlist.body.end"/>
+      <optional>
+        <ref name="tagline"/>
+      </optional>
+      <optional>
+        <ref name="bibliography"/>
+      </optional>
+    </element>
+  </define>
+
+  <define name="attlist.body.end" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		body.end
+    Partial description	Information at the end of an article body
+    Full description	Holds a tagline and/or a bibliography.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="tagline">
+    <element name="tagline">
+      <ref name="attlist.tagline"/>
+      <zeroOrMore>
+        <ref name="enriched-text"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.tagline" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="type" a:defaultValue="std">
+        <choice>
+          <value>std</value>
+          <value>pa</value>
+          <value>npa</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		tagline
+    Partial description	A byline at the end of a story.
+    Full description	Example: Stuart Myles contributed to this article.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    type		Standard, publishable-advisory, non-publishable advisory.
+  </a:documentation>
+
+  <define name="bibliography">
+    <element name="bibliography">
+      <ref name="attlist.bibliography"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.bibliography" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		bibliography
+    Partial description	Free-form bibliographic data.
+    Full description	Used to elaborate on the source of information.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="classifier">
+    <element name="classifier">
+      <ref name="attlist.classifier"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="alt-code"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.classifier" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="idsrc"/>
+    </optional>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		classifier
+    Partial description	Generic holder for metadata. Could be used by researchers and archivists to qualify documents.
+    Full description	May be used inline (as localized phrase, atop a block (as localized section), or in docdata (for document as a whole).
+    
+    id			Unique identifier for the element.
+    type		Type of classifier. Example is concept.
+    idsrc		The source (taxonomy) for the element's value.
+    value		The code or symbol for the element.
+  </a:documentation>
+
+  <define name="nitf-table">
+    <element name="nitf-table">
+      <ref name="attlist.nitf-table"/>
+      <ref name="nitf-table-metadata"/>
+      <choice>
+        <ref name="table"/>
+        <ref name="custom-table"/>
+        <oneOrMore>
+          <ref name="table-reference"/>
+        </oneOrMore>
+      </choice>
+    </element>
+  </define>
+
+  <define name="attlist.nitf-table" combine="interleave">
+    <ref name="global-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		nitf-table
+    Partial description	A holder for a table, and content-filled metadata.
+    Full description	May contain the classic NITF table, or a custom table.
+    
+    id			Unique identifier for the element.
+  </a:documentation>
+
+  <define name="custom-table">
+    <element name="custom-table">
+      <ref name="attlist.custom-table"/>
+      <text/>
+    </element>
+  </define>
+
+  <define name="attlist.custom-table" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		custom-table
+    Partial description	A holder for a namespaced XML fragment for custom-tagged data, or for an alternative set of non-parser-breaking content.
+    Full description	Used when publisher wants to surround the fragment with NITF metadata.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="table-reference">
+    <element name="table-reference">
+      <ref name="attlist.table-reference"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.table-reference" combine="interleave">
+    <ref name="global-attributes"/>
+    <attribute name="idref"/>
+  </define>
+
+  <a:documentation>
+    Element		table-reference
+    Partial description	A pointer to a table that is elsewhere in the document.
+    Full description	Can be used when the table is buried deep inside the included namespaced fragment.
+    
+    id			Unique identifier for the element.
+    idref		Holds an ID for the actual table.
+  </a:documentation>
+
+  <define name="nitf-table-metadata">
+    <element name="nitf-table-metadata">
+      <ref name="attlist.nitf-table-metadata"/>
+      <optional>
+        <ref name="nitf-table-summary"/>
+      </optional>
+      <oneOrMore>
+        <choice>
+          <ref name="nitf-colgroup"/>
+          <ref name="nitf-col"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.nitf-table-metadata" combine="interleave">
+    <ref name="common-attributes"/>
+    <optional>
+      <attribute name="subclass"/>
+    </optional>
+    <optional>
+      <attribute name="idsrc"/>
+    </optional>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+    <optional>
+      <attribute name="status">
+        <choice>
+          <value>pre</value>
+          <value>snap-shot</value>
+          <value>interim</value>
+          <value>final</value>
+          <value>official</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="column-count"/>
+    </optional>
+    <optional>
+      <attribute name="row-count"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		nitf-table-metadata
+    Partial description	A holder for a namespaced XML fragment for custom-tagged data.
+    Full description	Used when publisher wants to surround the fragment with NITF metadata.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+    subclass		A further refinement of the class attribute.
+    idsrc		The source (taxonomy) for the element's value attribute.
+    value		The code or symbol for the particular table.
+    status		Measure of finality of the values of the table. Interim is the end of a logical break. snap-shot is any point in time.
+    column-count	Number of columns in the entire table.
+    row-count		Number of rows in the entire table.
+  </a:documentation>
+
+  <define name="nitf-table-summary">
+    <element name="nitf-table-summary">
+      <ref name="attlist.nitf-table-summary"/>
+      <zeroOrMore>
+        <ref name="p"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.nitf-table-summary" combine="interleave">
+    <ref name="common-attributes"/>
+  </define>
+
+  <a:documentation>
+    Element		nitf-table-summary
+    Partial description	Textual description of the table.
+    Full description	May describe intent of table and how it may be represented. Should be managed like a non-publishable editors note.
+    
+    id			Unique identifier for the element.
+    class		An open placeholder for categorization.
+    style		An open placeholder for reference by an external stylesheet.
+  </a:documentation>
+
+  <define name="nitf-colgroup">
+    <element name="nitf-colgroup">
+      <ref name="attlist.nitf-colgroup"/>
+      <oneOrMore>
+        <ref name="nitf-col"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define name="attlist.nitf-colgroup" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="idsrc"/>
+    </optional>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+    <optional>
+      <attribute name="occurrences"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+    Element		nitf-colgroup
+    Partial description	A collection of nitf-col elements.
+    Full description	Used when table repeats columns of a particular type.
+    
+    id			Unique identifier for the element.
+    idsrc		The source (taxonomy) for the element's value attribute.
+    value		The code or symbol for the particular column.
+    occurrences		Indicates how many times the colgroup occurs. Default is 1.
+  </a:documentation>
+
+  <define name="nitf-col">
+    <element name="nitf-col">
+      <ref name="attlist.nitf-col"/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="attlist.nitf-col" combine="interleave">
+    <ref name="global-attributes"/>
+    <optional>
+      <attribute name="idsrc"/>
+    </optional>
+    <optional>
+      <attribute name="value"/>
+    </optional>
+    <optional>
+      <attribute name="occurrences"/>
+    </optional>
+    <optional>
+      <attribute name="data-type">
+        <choice>
+          <value>text</value>
+          <value>number</value>
+          <value>graphic</value>
+          <value>other</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="data-format"/>
+    </optional>
+  </define>
+
+  <a:documentation>
+  Element		nitf-col
+  Partial description	A holder for a namespaced XML fragment for custom-tagged data.
+  Full description	Used when publisher wants to surround the fragment with NITF metadata.
+  
+  id			Unique identifier for the element.
+  idsrc			The source (taxonomy) for the element's value attribute.
+  value			The code or symbol for the particular column.
+  occurrences		Indicates how many times the col occurs. Default is 1.
+  data-type		The general type of data within the column.
+  data-format		An expanded definition of the data, based on the data-type.
+  </a:documentation>
+
+</grammar>

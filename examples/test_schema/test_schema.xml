@@ -1,0 +1,12 @@
+<rootmarkup id="id" type="type">
+	<firstmarkupunderroot>aTest</firstmarkupunderroot>
+	<secondmarkupunderroot name="aName2">
+		<secondchoice choice="aChoice">
+			<name>aName</name>
+			<address>13 rue truc</address>
+			<city>paris</city>
+			<country>FR</country>
+			<age>35</age>
+		</secondchoice>
+	</secondmarkupunderroot>
+</rootmarkup>

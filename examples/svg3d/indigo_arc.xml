@@ -1,0 +1,6 @@
+<svg:g xmlns:svg="http://www.w3.org/2000/svg"
+	xmlns:z="http://debeissat.nicolas.free.fr/svg3d/svg3d.rng">
+	<svg:path d="M-60,0 C-60,90 60,90 60,0" style="fill: indigo;">
+        <z:rotation incRotX="0.07"/>
+    </svg:path>
+</svg:g>

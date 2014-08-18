@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rng:grammar 
+    xmlns:rng="http://relaxng.org/ns/structure/1.0"
+    xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+    <rng:start>
+        <rng:ref name="retina-description-file"/>
+    </rng:start>
+    <rng:define name="retina-description-file">
+        <rng:element name="retina-description-file">
+            <a:documentation>
+                You can add, in your xml file, one FixationalMovementGenerator object to simulate more or less precisely eye movements. The only generator available for the moment is the derived object BasicMicrosaccadeGenerator, which implements straight microsaccades around a fixation point, with random lengths, duration, and inter-saccadic interval
+            </a:documentation>
+            <rng:optional>
+                <rng:ref name="basic-microsaccade-generator"/>
+            </rng:optional>
+            <a:documentation>
+                Now comes the description of the retina object itself, through its various, modular, components: 
+            </a:documentation>
+            <rng:ref name="retina"/>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="basic-microsaccade-generator">
+        <rng:element name="basic-microsaccade-generator">
+            <rng:attribute name="angular-noise-in-pi-radians">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="average-amplitude-in-pixels">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="average-duration-of-one-saccade-in-seconds">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="average-period-in-seconds">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="variance-on-average-amplitude">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="variance-on-average-duration">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="variance-on-period-in-seconds">
+                <rng:data type="float"/>
+            </rng:attribute>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="retina">
+        <rng:element name="retina">
+            <rng:attribute name="temporal-step__sec">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:optional>
+                <rng:attribute name="input-luminosity-range">
+                    <rng:data type="integer"/>
+                </rng:attribute>
+            </rng:optional>
+            <rng:optional>
+                <rng:attribute name="pixels-per-degree">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:optional>
+            <a:documentation>
+                ******************** COMPONENT (1) : RADIAL SCHEME *********************************<br />
+                <br />
+                Exactly ONE, or ZERO, 'RadialScheme' object, that defines the scaling function of the whole retina (filtering scales and sampling) with eccentricity. Only RadialScheme for the moment is the derived class 'LogPolarScheme' that implements a log-polar density scheme. If no 'RadialScheme' is precised in this file, then the retina will be radially uniform. Otherwise, all filtering scale given in the following are values IN THE FOVEA, and the scale of filtering outside of fovea is calculated from the value in the fovea and from the radial scheme<br /> 
+            </a:documentation>
+            <rng:ref name="radial-scheme"/>
+            <a:documentation>
+                ******************** COMPONENT (2) : OUTER PLEXIFORM LAYER *********************************<br />
+                <br />
+                Exactly ONE 'OPLLayers' object, that defines the center/surround architecture that appears in the OPL of mammalian retinas. YOU HAVE TO CHOSE ONLY ONE amongst the two:<br />
+            </a:documentation>
+            <rng:ref name="outer-plexiform-layer"/>
+            <a:documentation>
+                ******************** COMPONENT (3) : CONTRAST GAIN CONTROL *********************************<br />
+                <br />
+                EXACTLY ONE, OR ZERO, 'GainControlAmacrine' object that provides CONTRAST INVARIANCE through a shunting inhibition between Amacrine cells and Bipolar cells. If you want your retina model to be totally linear, do not add this layer in your xml file.<br />
+            </a:documentation>
+            <rng:optional>
+                <rng:ref name="contrast-gain-control"/>
+            </rng:optional>
+            <a:documentation>
+                ******************** COMPONENT (4) : GANGLION CELLS *****************************************<br />
+                <br />
+                Define AS MANY 'GanglionLayer' objects as you like. Each object corresponds to a particular layer of ganglion cells. These objects exist under two versions: PARVOCELLULAR CELLS, and MAGNOCELLULAR CELLS, that differ by the default values for their different parameters, and for a supplementary spatial pooling for Magnocellular cells.
+                A layer of cells can be associated to EXACTLY ONE OR ZERO 'spiking-channel' objects, if you want your channel to display a discrete output made of spike trains. A 'spiking-channel' can be either a 'circular-spiking-channel' (the only type that can handle a non-uniform radial scheme), or a 'square'spiking-channel' (a square and uniform matrix of spiking cells).
+                For purposes of reconstruction and/or of reproducing exactly an experiment, a spiking channel is also able to save/load the exact position and MVASpike ID of all its spiking units. If this list is not present at loading of file, then the retina automatically generates its set of units according to the type and parameters of the spiking-array.
+                Here are different examples of how to define a channel of ganglion cells:<br />
+            </a:documentation>
+            <rng:zeroOrMore>
+                <rng:ref name="GanglionLayer"/>
+            </rng:zeroOrMore>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="radial-scheme">
+        <rng:optional>
+            <rng:element name="log-polar-scheme">
+                <rng:attribute name="fovea-radius">
+                    <rng:data type="integer"/>
+                </rng:attribute>
+                <rng:attribute name="scaling-factor-outside-fovea">
+                    <rng:data type="float"/>
+                </rng:attribute>
+            </rng:element>
+        </rng:optional>
+    </rng:define>
+    
+    <rng:define name="outer-plexiform-layer">
+        <rng:element name="outer-plexiform-layer">
+            <rng:choice>
+                <rng:ref name="linear-version"/>
+                <rng:ref name="luminance-gain-control-version"/>
+            </rng:choice>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="linear-version">
+        <a:documentation>
+            (a) Class 'LinearOPL' implements a linear Center/Surround scheme, without feedback, between Light Receptors and Horizontal Cells. Possibly, the linear filter of a layer can be a 'LeakyHeatEquation' filter which is slightly faster and more biological, but less easy to understand and manipulate mathematically. Whether you use 'LeakyHeatEquation' or not does not change the other parameters of the layer.
+        </a:documentation>
+        <rng:element name="linear-version">
+            <rng:attribute name="leaky-heat-equation">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="additional-sigma-surround__deg">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="additional-tau-surround__sec">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="opl-amplification">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="relative-weight-surround-center">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="sigma-center__deg">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="tau-center__sec">
+                <rng:data type="float"/>
+            </rng:attribute>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="luminance-gain-control-version">
+        <a:documentation>
+            (b) Alternatively, Class 'GainControlOPL' implements a supplementary, shunting feedback from Horizontal Cells to Receptors, that provides invariance to luminance. However, this version is more experimental, and yet not mandatory if a Contrast-Gain-Control stage is used afterwards (see COMPONENT (3) ) 
+        </a:documentation>
+        <rng:element name="luminance-gain-control-version">
+            <rng:attribute name="additional-tau-horizontal-cells">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="horizontal-feedback-amplification">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="horizontal-feedback-nernst-potential">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="inert-leak-in-receptors">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="input-amplification-phototransduction">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="relative-weight-surround-center">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="sigma-horizontal-cells">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="sigma-receptors">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="tau-phototransduction">
+                <rng:data type="float"/>
+            </rng:attribute>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="contrast-gain-control">
+        <rng:element name="contrast-gain-control">
+            <rng:attribute name="additional-tau-amacrine-cells__sec">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="amacrine-feedback-amplification">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="bipolar-to-amacrine-threshold">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="inert-leak-in-bipolar-cells">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="input-amplification-from-opl-signal">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:attribute name="sigma-amacrine-cells__deg">
+                <rng:data type="float"/>
+            </rng:attribute>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="GanglionLayer">
+        <rng:choice>
+            <rng:ref name="parvocellular-ganglion-layer"/>
+            <rng:ref name="magnocellular-ganglion-layer"/>
+        </rng:choice>
+    </rng:define>
+    
+    
+    <rng:define name="parvocellular-ganglion-layer">
+        <a:documentation>
+            (A) Parvocellular cells, without any associated spiking array (so, only a potential-map output)
+        </a:documentation>
+        <rng:element name="parvocellular-ganglion-layer">
+            <rng:ref name="common_attributes_ganglion-layer"/>
+            <rng:zeroOrMore>
+                <rng:ref name="spiking-channel"/>
+            </rng:zeroOrMore>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="magnocellular-ganglion-layer">
+        <a:documentation>
+            (B) Magnocellular cells, with an associated SQUARE array of spiking cells. Strange to use this one if you also use a radial scheme! Note the extra parameter sigma-pool, corresponding to an additional synaptic pooling in magnocellular cells. Note that threshold and transient-weight have different 'default' avlues than for Parvo cells.
+        </a:documentation>
+        <rng:element name="magnocellular-ganglion-layer">
+            <rng:ref name="common_attributes_ganglion-layer"/>
+            <rng:attribute name="sigma-pool">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:zeroOrMore>
+                <rng:ref name="spiking-channel"/>
+            </rng:zeroOrMore>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="common_attributes_ganglion-layer">
+        <rng:attribute name="additional-tau-transient__sec">
+            <rng:data type="float"/>
+        </rng:attribute>
+        <rng:attribute name="input-amplification-from-bipolar-signal">
+            <rng:data type="integer"/>
+        </rng:attribute>
+        <rng:attribute name="linear-threshold-from-bipolar-signal">
+            <rng:data type="float"/>
+        </rng:attribute>
+        <rng:attribute name="value-at-linear-threshold">
+            <rng:data type="float"/>
+        </rng:attribute>
+        <rng:attribute name="relative-transient-weight">
+            <rng:data type="float"/>
+        </rng:attribute>
+    </rng:define>
+    
+    <rng:define name="spiking-channel">
+        <rng:element name="spiking-channel">
+            <rng:choice>
+                <rng:ref name="square-spiking-channel"/>
+                <rng:ref name="circular-spiking-channel"/>
+            </rng:choice>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="square-spiking-channel">
+        <rng:element name="square-spiking-channel">
+            <rng:attribute name="size-x">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="size-y">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:ref name="common_attributes_spiking-channel"/>
+            <rng:attribute name="uniform-density">
+                <rng:data type="integer"/>
+            </rng:attribute>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="circular-spiking-channel">
+        <rng:element name="circular-spiking-channel">
+            <rng:attribute name="diameter">
+                <rng:data type="integer"/>
+            </rng:attribute>
+            <rng:attribute name="fovea-density">
+                <rng:data type="float"/>
+            </rng:attribute>
+            <rng:ref name="common_attributes_spiking-channel"/>
+            <rng:optional>
+                <rng:ref name="all-units"/>
+            </rng:optional>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="common_attributes_spiking-channel">
+        <rng:attribute name="g-leak">
+            <rng:data type="integer"/>
+        </rng:attribute>
+        <rng:attribute name="noise-V">
+            <rng:data type="float"/>
+        </rng:attribute>
+        <rng:attribute name="noise-refr__sec">
+            <rng:data type="integer"/>
+        </rng:attribute>
+        <rng:attribute name="tau-refr__sec">
+            <rng:data type="float"/>
+        </rng:attribute>
+        <rng:attribute name="random-init">
+            <rng:data type="float"/>
+        </rng:attribute>
+    </rng:define>
+    
+    <rng:define name="all-units">
+        <rng:element name="all-units">
+            <rng:oneOrMore>
+                <rng:element name="unit">
+                    <rng:attribute name="mvaspike-id">
+                        <rng:data type="integer"/>
+                    </rng:attribute>
+                    <rng:attribute name="x-offset">
+                        <rng:data type="float"/>
+                    </rng:attribute>
+                    <rng:attribute name="y-offset">
+                        <rng:data type="float"/>
+                    </rng:attribute>
+                </rng:element>
+            </rng:oneOrMore>
+        </rng:element>
+    </rng:define>
+    
+</rng:grammar>

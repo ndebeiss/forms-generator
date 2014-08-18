@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dtl:datatype xmlns:dtl="http://debeissat.nicolas.free.fr/sax/datatype_library.rng"
+ uri="http://www.w3.org/2001/XMLSchema-datatypes" localname="dateTime">
+    <dtl:param localname="length" value="19"/>
+    <dtl:context uri="http://debeissat.nicolas.free.fr/">
+        <dtl:map prefix="rng" uri="http://relaxng.org/ns/structure/1.0"/>
+        <dtl:map prefix="a" uri="http://relaxng.org/ns/compatibility/annotations/1.0"/>
+    </dtl:context>
+</dtl:datatype>
